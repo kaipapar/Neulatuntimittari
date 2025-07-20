@@ -41,10 +41,22 @@
 //GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(/*CS=D8*/ SS, /*DC=D3*/ 0, /*RST=D4*/ 2, /*BUSY=D2*/ 4)); // GDEH0154D67
 
 // for handling alternative SPI pins (ESP32, RP2040) see example GxEPD2_Example.ino
-
+#include <time.h>
+#include <stdio.h>
+#include <stdio.h>
 
 const char HelloWorld[] = "Hello World!";
 
+static char * current_time(){
+    time_t result = time(NULL);
+    static char buf[100];
+    snprintf(buf,sizeof(buf), "The current time is %s(%jd seconds since the Epoch)\n",
+               asctime(gmtime(&result)), (intmax_t)result);
+    if (result != (time_t)(-1))
+      return buf;
+    else
+      return "Error";
+}
 void helloWorld()
 {
   display.setRotation(1);
