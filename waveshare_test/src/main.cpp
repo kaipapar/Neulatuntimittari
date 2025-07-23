@@ -48,43 +48,50 @@
 const char HelloWorld[] = "Hello World!";
 
 static char * current_time(){
-    time_t result = time(NULL);
+    time_t result;
+    time(&result);
     static char buf[100];
     snprintf(buf,sizeof(buf), "The current time is %s(%jd seconds since the Epoch)\n",
                asctime(gmtime(&result)), (intmax_t)result);
     if (result != (time_t)(-1))
       return buf;
     else
-      return "Error";
+      return "Error:", buf;
 }
 void helloWorld()
 {
-  display.setRotation(1);
-  display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_BLACK);
+
   int16_t tbx, tby; uint16_t tbw, tbh;
-  display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
+  char *time_now = current_time();
+  display.getTextBounds(time_now, 0, 0, &tbx, &tby, &tbw, &tbh);
   // center the bounding box by transposition of the origin:
+
+  uint16_t wh = FreeMonoBold9pt7b.yAdvance;
+  uint16_t wy = wh;
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
-  uint16_t y = ((display.height() - tbh) / 2) - tby;
-  display.setFullWindow();
-  display.firstPage();
-  do
+  uint16_t y = wy;
+  display.setPartialWindow(10, wy, display.width()/2, display.height());  do
   {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(x, y);
-    display.print(HelloWorld);
+    display.print(time_now);
   }
   while (display.nextPage());
+  // display.clearScreen();
+  display.hibernate();
 }
 void setup()
 {
   //display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
   display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
-  helloWorld();
+  display.setRotation(1);
+  display.setFont(&FreeMonoBold9pt7b);
+  display.setTextColor(GxEPD_BLACK);
 
-  display.hibernate();
 }
-void loop() {  };
+void loop() { 
+  helloWorld();
+  delay(10000);
+};
 
 #endif
