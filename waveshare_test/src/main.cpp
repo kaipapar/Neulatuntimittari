@@ -65,20 +65,21 @@ void helloWorld()
   char *time_now = current_time();
   display.getTextBounds(time_now, 0, 0, &tbx, &tby, &tbw, &tbh);
   // center the bounding box by transposition of the origin:
-
   uint16_t wh = FreeMonoBold9pt7b.yAdvance;
   uint16_t wy = wh;
-  uint16_t x = ((display.width() - tbw) / 2) - tbx;
+  uint16_t x = 0;
   uint16_t y = wy;
-  display.setPartialWindow(10, wy, display.width()/2, display.height());  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-    display.setCursor(x, y);
-    display.print(time_now);
-  }
-  while (display.nextPage());
+  display.firstPage();
+  display.setFullWindow();
+  display.setCursor(x, y);
+  display.print(time_now);
+  display.nextPage();
+  display.setCursor(x, display.height()/1.5);
+  display.print(time_now);
+  display.nextPage();
   // display.clearScreen();
   display.hibernate();
+  
 }
 void setup()
 {
