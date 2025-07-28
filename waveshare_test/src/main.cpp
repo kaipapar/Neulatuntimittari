@@ -44,8 +44,18 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdio.h>
+#include <Arduino.h>
+
+
+// Set LED_BUILTIN if it is not defined by Arduino framework
+#ifndef LED_BUILTIN
+    #define LED_BUILTIN 2
+#endif
 
 const char HelloWorld[] = "Hello World!";
+
+uint16_t dist_status = analogRead(39);
+uint16_t dist_status_prev = 0;
 
 static char * current_time(){
     time_t result;
@@ -81,6 +91,83 @@ void helloWorld()
   display.hibernate();
   
 }
+
+void setup_ui() {
+// Setting up static UI elements
+  const char * static_elements[] = {"Time: ", "Status: ","Uptime: ","Distance: ", "Reed Switch: "};
+  uint16_t y, x;
+  y = x = 0;
+  y = FreeMonoBold9pt7b.yAdvance;
+  x = 5;
+  display.firstPage();
+  display.setFullWindow();
+  do {
+    display.setCursor(x, y);
+    display.print(static_elements[0]);
+    display.setCursor(x, y+20);
+    display.print(static_elements[1]);
+    display.setCursor(x, y+40);
+    display.print(static_elements[2]);
+    display.setCursor(x, y+60);
+    display.print(static_elements[3]);
+    display.setCursor(x, y+80);
+    display.print(static_elements[4]);
+  }while (display.nextPage());
+}
+
+void update_dist(){
+// updating dynamic UI elements
+  uint16_t x = display.width() / 3;
+  uint16_t y = 0;
+  uint16_t w = 50;
+  uint16_t h = 30;  
+  display.setPartialWindow(x,y,w,h);
+  display.firstPage();
+  Serial.println("Updating dist *****");
+  Serial.print("Dist status::: ");
+  Serial.println(dist_status);
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.fillRect(x, y, w, h, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+
+    display.setCursor(x,y+FreeMonoBold9pt7b.yAdvance);
+    display.print(dist_status);
+
+  }while (display.nextPage());  
+}
+void update_input(uint16_t input,
+                  uint16_t y = 0,
+                  uint16_t x = display.width() / 3,
+                  uint16_t w = 50,
+                  uint16_t h = 30){
+  // Generic function
+  display.setPartialWindow(x,y,w,h);
+  display.firstPage();
+  Serial.println("Updating *****");
+  Serial.print("status::: ");
+  Serial.println(input);
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.fillRect(x, y, w, h, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+
+    display.setCursor(x,y+FreeMonoBold9pt7b.yAdvance);
+    display.print(input);
+
+  }while (display.nextPage());  
+}
+
+void setup_ir_sensor() {
+  // initialize LED digital pin as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(25,INPUT); // Digital input
+  //pinMode(39, INPUT); // Analog input
+  pinMode(26, OUTPUT); // Enable output
+  digitalWrite(26, HIGH);
+  Serial.println("IR Setup **********\n");
+}
+
 void setup()
 {
   //display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
@@ -88,11 +175,22 @@ void setup()
   display.setRotation(1);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
+  Serial.begin(115200);
+
+  setup_ui();
+  setup_ir_sensor();
 
 }
 void loop() { 
-  helloWorld();
-  delay(10000);
+/*   helloWorld();
+  delay(10000); */
+  
+  // if (dist_status_prev != dist_status)
+  dist_status = analogRead(39);
+
+  update_input(dist_status);
+  dist_status_prev = dist_status;
+  delay(1000);
 };
 
 #endif
