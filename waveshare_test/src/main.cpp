@@ -54,8 +54,10 @@
 
 const char HelloWorld[] = "Hello World!";
 
-uint16_t dist_status = analogRead(39);
+uint16_t dist_status = 3;
 uint16_t dist_status_prev = 0;
+
+uint16_t reed_status = 3;
 
 static char * current_time(){
     time_t result;
@@ -114,6 +116,17 @@ void setup_ui() {
     display.print(static_elements[4]);
   }while (display.nextPage());
 }
+void setup_io() {
+// IR SENSOR
+  // initialize LED digital pin as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+  //pinMode(39, INPUT); // Analog input
+  pinMode(26, OUTPUT); // Enable output
+  digitalWrite(26, HIGH);
+  Serial.println("IR Setup **********\n");
+// REED SWITCH
+  pinMode(25,INPUT); // Digital input
+}
 
 void update_dist(){
 // updating dynamic UI elements
@@ -136,12 +149,13 @@ void update_dist(){
 
   }while (display.nextPage());  
 }
-void update_input(uint16_t input,
+
+// Generic function for waveshare prints
+void update_output(uint16_t input,
                   uint16_t y = 0,
                   uint16_t x = display.width() / 3,
                   uint16_t w = 50,
                   uint16_t h = 30){
-  // Generic function
   display.setPartialWindow(x,y,w,h);
   display.firstPage();
   Serial.println("Updating *****");
@@ -158,16 +172,6 @@ void update_input(uint16_t input,
   }while (display.nextPage());  
 }
 
-void setup_ir_sensor() {
-  // initialize LED digital pin as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(25,INPUT); // Digital input
-  //pinMode(39, INPUT); // Analog input
-  pinMode(26, OUTPUT); // Enable output
-  digitalWrite(26, HIGH);
-  Serial.println("IR Setup **********\n");
-}
-
 void setup()
 {
   //display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
@@ -178,7 +182,7 @@ void setup()
   Serial.begin(115200);
 
   setup_ui();
-  setup_ir_sensor();
+  setup_io();
 
 }
 void loop() { 
@@ -188,8 +192,11 @@ void loop() {
   // if (dist_status_prev != dist_status)
   dist_status = analogRead(39);
 
-  update_input(dist_status);
+  update_output(dist_status);
   dist_status_prev = dist_status;
+
+  reed_status = digitalRead(25); // reed pin
+  update_output(reed_status,35);
   delay(1000);
 };
 
