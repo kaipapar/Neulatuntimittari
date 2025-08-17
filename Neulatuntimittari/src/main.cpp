@@ -22,7 +22,8 @@
 
 // uncomment next line to use class GFX of library GFX_Root instead of Adafruit_GFX
 //#include <GFX.h>
-#if 0
+#define test 1
+#ifndef test
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 #include <GxEPD2_4C.h>
@@ -43,9 +44,10 @@
 // for handling alternative SPI pins (ESP32, RP2040) see example GxEPD2_Example.ino
 #include <time.h>
 #include <stdio.h>
-#include <stdio.h>
 #include <Arduino.h>
 
+//Filesystem
+#include "LittleFS.h"
 
 // Set LED_BUILTIN if it is not defined by Arduino framework
 #ifndef LED_BUILTIN
@@ -172,10 +174,32 @@ void update_screen(uint16_t input,
 
   }while (display.nextPage());  
 }
-/* Log time spent in active mode*/
-int logging(uint16_t start, uint16_t end) {
+// Read CSV into array
+int get_hours(){
   // LittleFS
-  // get difference -> read file -> write to file
+  // Read CSV to 2d array 
+  File file = LittleFS.open("/id_hours.csv");
+  if(!file){
+    Serial.println("Failed to open file for reading");
+    return;
+  }
+  Serial.println("File Content:");
+  while(file.available()){
+    Serial.write(file.read());
+  }
+  file.close();
+  return 0;
+}
+// Write updated CSV
+int save_hours(){
+}
+/* Log time spent in active mode
+  Check correct needle id 
+  > add difference of end and start to corresponding field 
+  > send array to be saved as csv
+*/
+int logging(uint16_t start, uint16_t end) {
+  
   return 0;
 }
 /* Status is active -> start polling distance sensor  */
