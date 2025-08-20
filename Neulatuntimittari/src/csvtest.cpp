@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LittleFS.h>
-
+/* Works! */
+#if 1
 #define ROWS 50   // adjust for your file
 #define COLS 10   // adjust for max columns per row
 
@@ -14,7 +15,7 @@ void setup() {
     return;
   }
 
-  File file = LittleFS.open("/id_hours.csv", "r");
+  File file = LittleFS.open("/id_hours.csv", "r", true);
   if (!file) {
     Serial.println("Failed to open file");
     return;
@@ -65,3 +66,4 @@ void setup() {
 
 void loop() {
 }
+#endif
