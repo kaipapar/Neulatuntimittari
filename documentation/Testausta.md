@@ -7,6 +7,7 @@
 - Ainakin yleismittarin kanssa keilirele toimii. Noin 1-2 cm päässä magneetista aktivoituu kiinni-tilaan.
 
 [[25.07.18]]
+
 ![something](./attachments/IMG20250718194050.jpg?raw=true "Title")
 
 1. tein testauskoodinpätkän blink_test, jolla saa kytkimien toimivuutta testattua helposti. (Jos sininen led palaa, kielirele on aktivoitu)
