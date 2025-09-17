@@ -3,7 +3,7 @@
 ## Missön steitmentti
 ----
 Halu tietää monta tuntia neulalla x on kuunneltu musiikkia täysin automatisoidusti. Sensorikeskeinen sulautettu järjestelmä tarvitaan, jottei ihmislähtöisen virheen (unohdus) takia neulatunteja merkattaisi joko liikaa tai liian vähän. Helppokäyttöisyys (ihmisrajapinta lähestyy olematonta) on olennaista.
-![img](attachments/IMG_20250630_093625.jpg|500)
+![img](attachments/IMG_20250630_093625.jpg)
 ## Vaatimuksia
 -----
 ### Toiminnalliset
@@ -107,7 +107,7 @@ Kiinnityshärpäkkeitä:
 - mahdollisimman matala, jotta olisi yhteensopiva myös matalampien levylautasten ja äänivarsien kanssa. 
 	- Yksi taso koivuvaneria 
 - Modulaarisuuden nimissä MCU ja kielirele yhdessä laatikossa ja SPI piuhat toiseen laatikkoon jossa etäisyysanturi. Näin saadaan kaikki hilkkeet järjesteltyä siten, että kielirele on tangentiaalinen levylautaseen nähden ja etäisyysanturi aksonometrinen äänivarteen nähden (isoja sanoja).
-![img](attachments/IMG20250628234006.jpg||500)
+![img](attachments/IMG20250628234006.jpg)
 
 5mm kaavapaperi: ![img](attachments/IMG20250629134331.jpg)
 ##### Hilkkeiden asennus yksityiskohdat

@@ -14,12 +14,12 @@
 2. Juotin kielireleen piuhoihin kiinni
 3. Testasin magneettien kanssa
 Testasin myös miten magneettikenttä pääsee puun läpi bambuleikkuulaudalla:
-![img](./attachments/IMG20250718194119.jpg||500)
+![img](./attachments/IMG20250718194119.jpg)
 Laudan alla on siis neodyymimagneetti: ja toimiihan se!
 
 ## etäisyysanturi
 [[25.07.18]]
- ![anturi](./attachments/IMG20250718191820.jpg||500?raw=true "Title")
+ ![anturi](./attachments/IMG20250718191820.jpg?raw=true "Title")
 1. Juotin pinnit kiinni
 2. Kirjoitin testauskoodin ir_sensor_test
 3. Kytkin kiinni ja se toimii!
@@ -30,7 +30,7 @@ Laudan alla on siis neodyymimagneetti: ja toimiihan se!
 4. tein sähkärin teipistä sensorille putken, jotta vastaanottaja havaitsisi lähettäjän valon vain yhdestä suunnasta. Tämä oli huomioitu dokumentaatiossakin, oivasti. 
 5. Teippihattu sai anturin toimimaan melko täydellisesti!
 Alla olevissa kuvissa: Punaisen valon palaessa: output: 0, muuten output: 4096. Äänivarsi on ensimmäisessä kuvassa lepotilassa ja toisessa aktiivi-tilassa. Anturri toimii siis täysin oikein.
-![img](./attachments/IMG20250718205333.jpg||500)
+![img](./attachments/IMG20250718205333.jpg)
 ![img](./attachments/IMG20250718205340.jpg?raw=true)
 
 > [!NOTE] 
