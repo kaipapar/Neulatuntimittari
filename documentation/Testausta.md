@@ -7,17 +7,18 @@
 - Ainakin yleismittarin kanssa keilirele toimii. Noin 1-2 cm päässä magneetista aktivoituu kiinni-tilaan.
 
 [[25.07.18]]
-![[./attachments/IMG20250718194050.jpg||500]]
+![something](./attachments/IMG20250718194050.jpg?raw=true "Title")
+
 1. tein testauskoodinpätkän blink_test, jolla saa kytkimien toimivuutta testattua helposti. (Jos sininen led palaa, kielirele on aktivoitu)
 2. Juotin kielireleen piuhoihin kiinni
 3. Testasin magneettien kanssa
 Testasin myös miten magneettikenttä pääsee puun läpi bambuleikkuulaudalla:
-![[./attachments/IMG20250718194119.jpg||500]]
+![](./attachments/IMG20250718194119.jpg||500)
 Laudan alla on siis neodyymimagneetti: ja toimiihan se!
 
 ## etäisyysanturi
 [[25.07.18]]
- ![[./attachments/IMG20250718191820.jpg||500]]
+ ![](./attachments/IMG20250718191820.jpg||500)
 1. Juotin pinnit kiinni
 2. Kirjoitin testauskoodin ir_sensor_test
 3. Kytkin kiinni ja se toimii!
@@ -28,8 +29,8 @@ Laudan alla on siis neodyymimagneetti: ja toimiihan se!
 4. tein sähkärin teipistä sensorille putken, jotta vastaanottaja havaitsisi lähettäjän valon vain yhdestä suunnasta. Tämä oli huomioitu dokumentaatiossakin, oivasti. 
 5. Teippihattu sai anturin toimimaan melko täydellisesti!
 Alla olevissa kuvissa: Punaisen valon palaessa: output: 0, muuten output: 4096. Äänivarsi on ensimmäisessä kuvassa lepotilassa ja toisessa aktiivi-tilassa. Anturri toimii siis täysin oikein.
-![[./attachments/IMG20250718205333.jpg||500]]
-![[./attachments/IMG20250718205340.jpg||500]]
+![](./attachments/IMG20250718205333.jpg||500)
+![](./attachments/IMG20250718205340.jpg||500)
 
 > [!NOTE] Anturin jatkosäätö
 > Näillä näkymin en näe tarpeelliseksi tutkia anturin toiminnallisuutta sen enempää. Sehän toimii tarkoitetulla tavalla!
@@ -50,7 +51,7 @@ Ekaks ei toiminut. Luokka olikin väärä! Kävin läpi useamman luokan ja oikea
 ` #define GxEPD2_DRIVER_CLASS GxEPD2_266_BN // DEPG0266BN 152x296, SSD1680, (FPC7510), TTGO T5 V2.66, TTGO T5 V2.4.1
 
 Olo huojentunut! debuggasin tarkastamalla portit visuaalisesti, että johdot olivat oikeissa paikoissa ja näytön puolelta yleismittarilla, että kaikki pinnit olivat aktiivisia. Onneksi ratkaisu oli suht yksinkertainen.
-![[./attachments/IMG20250720140437.jpg|500]]
+![](./attachments/IMG20250720140437.jpg|500)
 
 
 

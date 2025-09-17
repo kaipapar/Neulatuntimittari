@@ -3,7 +3,7 @@
 ## Missön steitmentti
 ----
 Halu tietää monta tuntia neulalla x on kuunneltu musiikkia täysin automatisoidusti. Sensorikeskeinen sulautettu järjestelmä tarvitaan, jottei ihmislähtöisen virheen (unohdus) takia neulatunteja merkattaisi joko liikaa tai liian vähän. Helppokäyttöisyys (ihmisrajapinta lähestyy olematonta) on olennaista.
-![[attachments/IMG_20250630_093625.jpg|500]]
+![](attachments/IMG_20250630_093625.jpg|500)
 ## Vaatimuksia
 -----
 ### Toiminnalliset
@@ -107,9 +107,9 @@ Kiinnityshärpäkkeitä:
 - mahdollisimman matala, jotta olisi yhteensopiva myös matalampien levylautasten ja äänivarsien kanssa. 
 	- Yksi taso koivuvaneria 
 - Modulaarisuuden nimissä MCU ja kielirele yhdessä laatikossa ja SPI piuhat toiseen laatikkoon jossa etäisyysanturi. Näin saadaan kaikki hilkkeet järjesteltyä siten, että kielirele on tangentiaalinen levylautaseen nähden ja etäisyysanturi aksonometrinen äänivarteen nähden (isoja sanoja).
-![[attachments/IMG20250628234006.jpg||500]]
+![](attachments/IMG20250628234006.jpg||500)
 
-5mm kaavapaperi: ![[attachments/IMG20250629134331.jpg]]
+5mm kaavapaperi: ![](attachments/IMG20250629134331.jpg)
 ##### Hilkkeiden asennus yksityiskohdat
 - Jos laatikko rakennetaan siten, että otetaan koivuvaneria ja leikataqan jyrsimellä se ontoksi, jää pohja aukinaiseksi.
 - Pohjan aukon peittäminen kankaalla houkuttelee. Esim BW vihreä kangas toimisi esteettisesti kirkkaan oranssin kanssa. Kankaan pehmeys ja irtonaisuus on myös miellyttävä yksityiskohta.
@@ -129,7 +129,7 @@ Kiinnityshärpäkkeitä:
 	- Etäisyysanturin rööri ylöspäin. Saatetaan tarvia joku linssi estääkseen kakkelin lentämisen sisään, ehkä ei.
 
 #### lähetyslista
-![[attachments/Screenshot_2025-07-04-13-19-35-19_e2d5b3f32b79de1d45acd1fad96fbb0f.jpg]]
+![](attachments/Screenshot_2025-07-04-13-19-35-19_e2d5b3f32b79de1d45acd1fad96fbb0f.jpg)
 Lopulta vähän kalliimpi kuin olin ajatellut, 58 e postitettuna. Toisaalta kaikki hinnat oikein järkeviä, en ollut ehkä vaan ajatellut kokonaiskuvaa 😅.
 - En ostanut nyt akkua tätä varten, katsotaan sitten syssymmällä.
 - pienempi WSH-12955 näyttö oli loppuunmyyty, valitettavasti.
@@ -147,7 +147,7 @@ Ubuntu 24
 [Wavesharen
 [Youtube video: esp32 waveshare epaper tutorial](https://youtu.be/El38zVmog14?si=ud3ozTBkW0lQLSYN)
 
-maybemaybemaybe
+#### Logiikka
 I/O
 Bool releK = gpio(kielirele)
 Int antuE = gpio(etäisyysanturi)
