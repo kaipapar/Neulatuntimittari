@@ -22,17 +22,14 @@
 
 // uncomment next line to use class GFX of library GFX_Root instead of Adafruit_GFX
 //#include <GFX.h>
-#define test 1
-#ifndef test
+#if 1
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 #include <GxEPD2_4C.h>
 #include <GxEPD2_7C.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
-
 // select the display class and display driver class in the following file (new style):
 #include "GxEPD2_display_selection_new_style.h"
-
 // or select the display constructor line in one of the following files (old style):
 #include "GxEPD2_display_selection.h"
 #include "GxEPD2_display_selection_added.h"
@@ -54,15 +51,17 @@
     #define LED_BUILTIN 2
 #endif
 
-const char HelloWorld[] = "Hello World!";
+// Macro to pack two bits into one value 
+#define STATE(s1, s2)  (((s1) << 1) | (s2))
+// helpers for reading the states
+#define GET_S1(state)    (((state) >> 1) & 1)
+#define GET_S2(state)    (((state) >> 0) & 1)
+uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
 
-uint16_t dist_status = 3;
-uint16_t dist_prev = 0;
+// max time difference between reed switch activations
+#define MAX_INTERVAL 5000
 
-uint16_t reed_status = 3;
-uint16_t reed_prev = 0;
-
-static char * current_time(){
+static char * current_time_str(){
     time_t result;
     time(&result);
     static char buf[100];
@@ -73,11 +72,22 @@ static char * current_time(){
     else
       return "Error:", buf;
 }
-void helloWorld()
-{
+int16_t current_time_int(){
+  time_t result;
+  time(&result);
+  if (result != (time_t)(-1))
+    return (int16_t)result;
+  else {
+    Serial.println(":::: ERROR, current time wasn't retrieved properly");
+    return -1;
+  }
 
+}
+
+void helloWorld() // not in use
+{
   int16_t tbx, tby; uint16_t tbw, tbh;
-  char *time_now = current_time();
+  char *time_now = current_time_str();
   display.getTextBounds(time_now, 0, 0, &tbx, &tby, &tbw, &tbh);
   // center the bounding box by transposition of the origin:
   uint16_t wh = FreeMonoBold9pt7b.yAdvance;
@@ -131,7 +141,8 @@ void setup_io() {
   pinMode(25,INPUT); // Digital input
 }
 
-void update_dist(){
+void update_dist() // not in use
+{
 // updating dynamic UI elements
   uint16_t x = display.width() / 3;
   uint16_t y = 0;
@@ -141,19 +152,20 @@ void update_dist(){
   display.firstPage();
   Serial.println("Updating dist *****");
   Serial.print("Dist status::: ");
-  Serial.println(dist_status);
+  // Serial.println(dist_status);
   do {
     display.fillScreen(GxEPD_WHITE);
     display.fillRect(x, y, w, h, GxEPD_BLACK);
     display.setTextColor(GxEPD_WHITE);
 
     display.setCursor(x,y+FreeMonoBold9pt7b.yAdvance);
-    display.print(dist_status);
+    // display.print(dist_status);
 
   }while (display.nextPage());  
 }
 
-// Generic function for waveshare prints
+/*Generic function for waveshare prints 
+  min y dist between two elements= */
 void update_screen(uint16_t input,
                   uint16_t y = 0,
                   uint16_t x = display.width() / 3,
@@ -181,7 +193,7 @@ int get_hours(){
   File file = LittleFS.open("/id_hours.csv");
   if(!file){
     Serial.println("Failed to open file for reading");
-    return;
+    return 0;
   }
   Serial.println("File Content:");
   while(file.available()){
@@ -189,9 +201,10 @@ int get_hours(){
   }
   file.close();
   return 0;
-}
+} 
 // Write updated CSV
 int save_hours(){
+  return 0;
 }
 /* Log time spent in active mode
   Check correct needle id 
@@ -202,18 +215,32 @@ int logging(uint16_t start, uint16_t end) {
   
   return 0;
 }
-/* Status is active -> start polling distance sensor  */
-int active() {
-  dist_status = analogRead(39);
-  update_screen(dist_status);
-  // timestamp BLAM
-  int start = 0;
-  while (dist_status){} // do nothing
+int8_t is_reed_active(uint16_t* prev_time, uint8_t* prev_state){
+  uint8_t current_state = digitalRead(25);
+  int16_t current_time = current_time_int();
+  int8_t state = -1;
+  if (current_state != *prev_state){
+    if ((current_time - *prev_time) > MAX_INTERVAL) {
+      state = 0;
+    } else if ((current_time - *prev_time) < 0) {
+      state = -1;
+    } else {
+      state = 1;
+    }
+  *prev_time = current_time;
+  *prev_state = current_state;
+  }
+  return state;
+}
 
-  // outside loop -> get difference between start timestamp and now -> write to file
-  int end = 1;
-  logging(start, end);
-  return 0;
+int8_t is_dist_active(){
+  int8_t dist_status = analogRead(39);
+  if (dist_status < 0)
+    return -1;
+  else if (dist_status == 0)
+    return 0;
+  else
+    return 1;
 }
 
 void setup(){
@@ -222,22 +249,61 @@ void setup(){
   display.setRotation(1);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   setup_ui();
   setup_io();
 
 }
 void loop() { 
-
-  reed_status = digitalRead(25); // reed pin
-  update_screen(reed_status,35);
-  // replace with interrupt
-  if (reed_status != reed_prev)
-    active();
-
-  reed_prev = reed_status;
+  uint16_t reed_time = 0; // time last seen for reed switch
+  uint8_t reed_prev_state = 0; // previous reed state
+  int16_t timer = 0; // stores time since
+  int8_t reed_state = -2;
+  int8_t dist_state = -2;
+  while (1){
+    reed_state = is_reed_active(&reed_time, &reed_prev_state);
+    dist_state = is_dist_active();
+    if ((reed_state || dist_state) != (0 || 1))
+      Serial.println("::::: ERROR, sensor states are not valid");
+      reed_state, dist_state = 0,0; // error
+      
+    sensorStatus = STATE(reed_state,dist_state);
+  
+    // state machine    
+    switch (sensorStatus)
+    {
+    case STATE(0,0):
+      /* both off, push hours to file, reset timer, going to sleep */
+      Serial.println("::both off, push hours to file, reset timer, going to sleep");
+      break;
+    case STATE(0,1):
+      /* distance sensor on but reed is off, stop timer */
+      Serial.println("::distance sensor on but reed is off, stop timer");
+      break;
+    case STATE(1,0):
+      /* reed is on but distance sensor is off, stop timer */
+      Serial.println("reed is on but distance sensor is off, stop timer");
+      break;    
+    case STATE(1,1):
+      /* both sensors are on, start timer */
+      Serial.println("both sensors are on, start timer: timer status::::");
+      if (timer != 0){
+        // donothing, timer has already started
+      } else {
+        timer = current_time_int();
+      }
+      Serial.println(timer);
+      break;        
+    default:
+      break;
+    }
+    // update screen
+    update_screen(reed_state, 35);
+    update_screen(dist_state, 50); // they are overlapping now.
+  }
   delay(1000);
+
 };
 
 #endif
