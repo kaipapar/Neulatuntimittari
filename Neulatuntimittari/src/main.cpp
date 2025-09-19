@@ -34,14 +34,12 @@
 #include "GxEPD2_display_selection.h"
 #include "GxEPD2_display_selection_added.h"
 
-// alternately you can copy the constructor from GxEPD2_display_selection.h or GxEPD2_display_selection_added.h to here
-// e.g. for Wemos D1 mini:
-//GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(/*CS=D8*/ SS, /*DC=D3*/ 0, /*RST=D4*/ 2, /*BUSY=D2*/ 4)); // GDEH0154D67
-
-// for handling alternative SPI pins (ESP32, RP2040) see example GxEPD2_Example.ino
-#include <time.h>
 #include <stdio.h>
 #include <Arduino.h>
+
+// Timer
+#include "esp_timer.h"
+// #include <time.h>
 
 //Filesystem
 #include "LittleFS.h"
@@ -72,11 +70,11 @@ static char * current_time_str(){
     else
       return "Error:", buf;
 }
-int16_t current_time_int(){
+int32_t current_time_int(){
   time_t result;
   time(&result);
   if (result != (time_t)(-1))
-    return (int16_t)result;
+    return (int32_t)result;
   else {
     Serial.println(":::: ERROR, current time wasn't retrieved properly");
     return -1;
@@ -173,9 +171,9 @@ void update_screen(uint16_t input,
                   uint16_t h = 30){
   display.setPartialWindow(x,y,w,h);
   display.firstPage();
-  Serial.println("Updating *****");
+/*   Serial.println("Updating *****");
   Serial.print("status::: ");
-  Serial.println(input);
+  Serial.println(input); */
   do {
     display.fillScreen(GxEPD_WHITE);
     display.fillRect(x, y, w, h, GxEPD_BLACK);
@@ -215,32 +213,36 @@ int logging(uint16_t start, uint16_t end) {
   
   return 0;
 }
-int8_t is_reed_active(uint16_t* prev_time, uint8_t* prev_state){
+int8_t is_reed_active(int16_t* prev_time, uint8_t* prev_state){
   uint8_t current_state = digitalRead(25);
-  int16_t current_time = current_time_int();
+  int32_t current_time = current_time_int();
   int8_t state = -1;
+  Serial.println("Current time, prev_time");
+  Serial.print(current_time);
+  Serial.print(*prev_time);
   if (current_state != *prev_state){
     if ((current_time - *prev_time) > MAX_INTERVAL) {
       state = 0;
     } else if ((current_time - *prev_time) < 0) {
+      // variables have wrapped or some other weirdness has happened
       state = -1;
+      return state;
     } else {
       state = 1;
     }
   *prev_time = current_time;
   *prev_state = current_state;
+  } else {
+    state = 0;
   }
   return state;
 }
 
 int8_t is_dist_active(){
-  int8_t dist_status = analogRead(39);
-  if (dist_status < 0)
-    return -1;
-  else if (dist_status == 0)
-    return 0;
-  else
-    return 1;
+  uint16_t dist_status = analogRead(39);
+  Serial.println("::: HEllo from dist function::");
+  Serial.print(dist_status);
+  return (dist_status > 100) ? 1 : 0;
 }
 
 void setup(){
@@ -256,7 +258,7 @@ void setup(){
 
 }
 void loop() { 
-  uint16_t reed_time = 0; // time last seen for reed switch
+  int16_t reed_time = 0; // time last seen for reed switch
   uint8_t reed_prev_state = 0; // previous reed state
   int16_t timer = 0; // stores time since
   int8_t reed_state = -2;
@@ -264,9 +266,20 @@ void loop() {
   while (1){
     reed_state = is_reed_active(&reed_time, &reed_prev_state);
     dist_state = is_dist_active();
-    if ((reed_state || dist_state) != (0 || 1))
+/*     dist_state = 1;
+    reed_state = 1; */
+    Serial.print("Dista_state;");
+    Serial.println(dist_state);
+    if ((reed_state != 0 && reed_state != 1) ||
+        (dist_state != 0 && dist_state != 1)) {
       Serial.println("::::: ERROR, sensor states are not valid");
-      reed_state, dist_state = 0,0; // error
+      Serial.print("Dista_state, reeda state;");
+      Serial.println(dist_state);
+      Serial.println(reed_state);
+      reed_state = 0;
+      dist_state = 0;
+    }
+
       
     sensorStatus = STATE(reed_state,dist_state);
   
