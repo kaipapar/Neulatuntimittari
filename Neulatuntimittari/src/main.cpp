@@ -36,10 +36,11 @@
 
 #include <stdio.h>
 #include <Arduino.h>
+#include <math.h>
 
 // Timer
 #include "esp_timer.h"
-// #include <time.h>
+#include <time.h>
 
 //Filesystem
 #include "LittleFS.h"
@@ -70,18 +71,13 @@ static char * current_time_str(){
     else
       return "Error:", buf;
 }
-int32_t current_time_int(){
-  time_t result;
-  time(&result);
-  if (result != (time_t)(-1))
-    return (int32_t)result;
-  else {
-    Serial.println(":::: ERROR, current time wasn't retrieved properly");
-    return -1;
-  }
-
+int64_t current_time_ms(){
+  /* esp_timer_handle_t handle;
+  esp_timer_create_args_t time_struct; */
+  int64_t current_time_us = esp_timer_get_time();
+  double current_time_ms = (double)current_time_us / 1000.0;
+  return (int64_t) floor(current_time_ms);
 }
-
 void helloWorld() // not in use
 {
   int16_t tbx, tby; uint16_t tbw, tbh;
@@ -213,13 +209,21 @@ int logging(uint16_t start, uint16_t end) {
   
   return 0;
 }
-int8_t is_reed_active(int16_t* prev_time, uint8_t* prev_state){
+
+/* This has some fiddly weirdness still. Doesn't always activate when it should 
+  * It could be because in my test setup the magned doesn't go far away
+    enough so that the reed opens/closes.
+*/
+int8_t is_reed_active(int64_t* prev_time, uint8_t* prev_state){
   uint8_t current_state = digitalRead(25);
-  int32_t current_time = current_time_int();
+  // int32_t current_time = current_time_int();
+  int64_t current_time = current_time_ms();
+
   int8_t state = -1;
   Serial.println("Current time, prev_time");
   Serial.print(current_time);
-  Serial.print(*prev_time);
+  Serial.print(":::");
+  Serial.println(*prev_time);
   if (current_state != *prev_state){
     if ((current_time - *prev_time) > MAX_INTERVAL) {
       state = 0;
@@ -258,9 +262,9 @@ void setup(){
 
 }
 void loop() { 
-  int16_t reed_time = 0; // time last seen for reed switch
+  int64_t reed_time = 0; // time last seen for reed switch
   uint8_t reed_prev_state = 0; // previous reed state
-  int16_t timer = 0; // stores time since
+  int64_t start_time = 0; // stores time since
   int8_t reed_state = -2;
   int8_t dist_state = -2;
   while (1){
@@ -301,12 +305,12 @@ void loop() {
     case STATE(1,1):
       /* both sensors are on, start timer */
       Serial.println("both sensors are on, start timer: timer status::::");
-      if (timer != 0){
+      if (start_time != 0){
         // donothing, timer has already started
       } else {
-        timer = current_time_int();
+        start_time = esp_timer_get_time();
       }
-      Serial.println(timer);
+      Serial.println(start_time);
       break;        
     default:
       break;
