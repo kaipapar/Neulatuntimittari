@@ -216,7 +216,7 @@ int save_hours(){
   > add difference of end and start to corresponding field 
   > send array to be saved as csv
 */
-int logging(int64_t start, int64_t end) {
+int logging(int64_t time) {
   
   return 0;
 }
@@ -294,6 +294,7 @@ void loop() {
   int64_t reed_time = 0; // time last seen for reed switch
   uint8_t reed_prev_state = 0; // previous reed state
   int64_t start_time = 0; // stores time since
+  int64_t active_time = 0; // amount of time spent active in ms
   int8_t reed_state = -2;
   int8_t dist_state = -2;
   while (1){
@@ -314,8 +315,8 @@ void loop() {
     }
 
       
-    sensorStatus = STATE(reed_state,dist_state);
-    // sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
+    // sensorStatus = STATE(reed_state,dist_state);
+    sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
 
     // state machine    
     switch (sensorStatus)
@@ -323,17 +324,23 @@ void loop() {
     case STATE(0,0):
       /* both off, push hours to file, reset timer, going to sleep */
       Serial.println("::both off, push hours to file, reset timer, going to sleep");
-      logging(start_time, esp_timer_get_time());
+      logging(active_time);
       // timer is reset upon boot
       go_sleep(reed_state);
       break;
     case STATE(0,1):
       /* distance sensor on but reed is off, stop timer */
       Serial.println("::distance sensor on but reed is off, stop timer");
+      // if start time is something other than 0 active time can be updated
+      active_time += (start_time ? (current_time_ms() - start_time) : 0);  
+      start_time = 0;          
       break;
     case STATE(1,0):
       /* reed is on but distance sensor is off, stop timer */
       Serial.println("reed is on but distance sensor is off, stop timer");
+      // if start time is something other than 0 active time can be updated
+      active_time += (start_time ? (current_time_ms() - start_time) : 0);
+      start_time = 0;
       break;    
     case STATE(1,1):
       /* both sensors are on, start timer */
@@ -341,13 +348,18 @@ void loop() {
       if (start_time != 0){
         // donothing, timer has already started
       } else {
-        start_time = esp_timer_get_time();
+        start_time = current_time_ms();
       }
       Serial.println(start_time);
       break;        
     default:
       break;
     }
+    Serial.println("Timer statii; Start, active, current");
+    Serial.println(start_time);
+    Serial.println(active_time);
+    Serial.println(current_time_ms());
+  
     // update screen
     update_screen(reed_state, 35);
     update_screen(dist_state, 50); // they are overlapping now.
