@@ -45,10 +45,20 @@
 //Filesystem
 #include "LittleFS.h"
 
+//Sleep
+#include "esp_sleep.h"
+//#include "driver/rtc_io.h"
+
+
 // Set LED_BUILTIN if it is not defined by Arduino framework
 #ifndef LED_BUILTIN
     #define LED_BUILTIN 2
 #endif
+#define REED_PIN 25
+#define DIST_PIN 39
+
+// # of cycles from deep sleep to wake. 
+RTC_DATA_ATTR int boot_cnt = 0;
 
 // Macro to pack two bits into one value 
 #define STATE(s1, s2)  (((s1) << 1) | (s2))
@@ -56,6 +66,7 @@
 #define GET_S1(state)    (((state) >> 1) & 1)
 #define GET_S2(state)    (((state) >> 0) & 1)
 uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
+
 
 // max time difference between reed switch activations
 #define MAX_INTERVAL 5000
@@ -127,12 +138,12 @@ void setup_io() {
 // IR SENSOR
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-  //pinMode(39, INPUT); // Analog input
+  //pinMode(DIST_PIN, INPUT); // Analog input
   pinMode(26, OUTPUT); // Enable output
   digitalWrite(26, HIGH);
   Serial.println("IR Setup **********\n");
 // REED SWITCH
-  pinMode(25,INPUT); // Digital input
+  pinMode(25,INPUT_PULLUP); // Digital input
 }
 
 void update_dist() // not in use
@@ -205,7 +216,7 @@ int save_hours(){
   > add difference of end and start to corresponding field 
   > send array to be saved as csv
 */
-int logging(uint16_t start, uint16_t end) {
+int logging(int64_t start, int64_t end) {
   
   return 0;
 }
@@ -243,10 +254,26 @@ int8_t is_reed_active(int64_t* prev_time, uint8_t* prev_state){
 }
 
 int8_t is_dist_active(){
-  uint16_t dist_status = analogRead(39);
+  uint16_t dist_status = analogRead(DIST_PIN);
   Serial.println("::: HEllo from dist function::");
   Serial.print(dist_status);
   return (dist_status > 100) ? 1 : 0;
+}
+
+void go_sleep(uint8_t state){
+// 1. disable reed pin as gpio pin 2. activate it as wakeup pin
+// 3. go to sleep
+    Serial.println("Going to sleep");
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(5000);
+    //gpio_set_direction((gpio_num_t)REED_PIN, GPIO_MODE_DISABLE);
+    //rtc_gpio_pullup_en((gpio_num_t)REED_PIN);
+    if (state){
+        esp_sleep_enable_ext0_wakeup((gpio_num_t)REED_PIN,LOW);
+    } else {
+        esp_sleep_enable_ext0_wakeup((gpio_num_t)REED_PIN,HIGH);
+    }
+    esp_deep_sleep_start();
 }
 
 void setup(){
@@ -259,7 +286,7 @@ void setup(){
 
   setup_ui();
   setup_io();
-
+  boot_cnt++; 
 }
 void loop() { 
   int64_t reed_time = 0; // time last seen for reed switch
@@ -293,6 +320,9 @@ void loop() {
     case STATE(0,0):
       /* both off, push hours to file, reset timer, going to sleep */
       Serial.println("::both off, push hours to file, reset timer, going to sleep");
+      logging(start_time, esp_timer_get_time());
+      // timer is reset upon boot
+      go_sleep(reed_state);
       break;
     case STATE(0,1):
       /* distance sensor on but reed is off, stop timer */
