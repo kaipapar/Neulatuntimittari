@@ -53,10 +53,10 @@ void loop() {
         Serial.print("STATE:");
         Serial.println(state);
         if (state != prev_state){
+            prev_state = state;
             sleep(state);
         }
     
-        prev_state = state;
         delay(500);
     }
 }

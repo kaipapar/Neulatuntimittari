@@ -226,7 +226,7 @@ int logging(int64_t start, int64_t end) {
     enough so that the reed opens/closes.
 */
 int8_t is_reed_active(int64_t* prev_time, uint8_t* prev_state){
-  uint8_t current_state = digitalRead(25);
+  uint8_t current_state = digitalRead(25) ? 0 : 1; //flip
   // int32_t current_time = current_time_int();
   int64_t current_time = current_time_ms();
 
@@ -268,6 +268,8 @@ void go_sleep(uint8_t state){
     delay(5000);
     //gpio_set_direction((gpio_num_t)REED_PIN, GPIO_MODE_DISABLE);
     //rtc_gpio_pullup_en((gpio_num_t)REED_PIN);
+    Serial.print("State from gosleep: ");
+    Serial.println(state);
     if (state){
         esp_sleep_enable_ext0_wakeup((gpio_num_t)REED_PIN,LOW);
     } else {
@@ -313,7 +315,8 @@ void loop() {
 
       
     sensorStatus = STATE(reed_state,dist_state);
-  
+    // sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
+
     // state machine    
     switch (sensorStatus)
     {
