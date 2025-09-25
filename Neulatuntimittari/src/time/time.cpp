@@ -28,3 +28,11 @@ int64_t current_time_ms(){
   double current_time_ms = (double)current_time_us / 1000.0;
   return (int64_t) floor(current_time_ms);
 }
+
+/* Returns: 
+    active time (difference between start and now)
+    or 0 */
+int64_t get_active_time(int64_t start){
+    // if start time is something other than 0 active time can be updated
+    return (start ? (current_time_ms() - start) : 0);
+}

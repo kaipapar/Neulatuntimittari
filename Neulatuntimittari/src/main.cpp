@@ -28,7 +28,6 @@ RTC_DATA_ATTR int boot_cnt = 0;
 // helpers for reading the states
 #define GET_S1(state)    (((state) >> 1) & 1)
 #define GET_S2(state)    (((state) >> 0) & 1)
-uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
 
 void setup(){
   setup_waveshare();
@@ -37,6 +36,7 @@ void setup(){
   setup_ui();
   setup_dist();
   setup_reed();
+  setup_littlefs();
     // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
   boot_cnt++; 
@@ -48,6 +48,9 @@ void loop() {
   int64_t active_time = 0; // amount of time spent active in ms
   int8_t reed_state = -2;
   int8_t dist_state = -2;
+  uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
+  uint64_t id_hours[ROWS][COLS] = {0};
+
   while (1){
     reed_state = is_reed_active(&reed_time, &reed_prev_state);
     dist_state = is_dist_active();
@@ -64,17 +67,18 @@ void loop() {
       reed_state = 0;
       dist_state = 0;
     }
-
       
     // sensorStatus = STATE(reed_state,dist_state);
     sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
 
-    // state machine    
-    switch (sensorStatus)
-    {
+    switch (sensorStatus){
     case STATE(0,0):
       /* both off, push hours to file, reset timer, going to sleep */
       Serial.println("::both off, push hours to file, reset timer, going to sleep");
+      Serial.println(get_hours_csv(id_hours)); // works
+      id_hours[0][2] = (uint64_t) 69; //works
+      Serial.println(save_hours_csv(id_hours)); // saves mumbo jumbo!?
+      print_table(id_hours); // prints the mumbo jumbo!?
       logging(active_time);
       // timer is reset upon boot
       go_sleep(reed_state, (gpio_num_t)REED_PIN);
@@ -82,15 +86,13 @@ void loop() {
     case STATE(0,1):
       /* distance sensor on but reed is off, stop timer */
       Serial.println("::distance sensor on but reed is off, stop timer");
-      // if start time is something other than 0 active time can be updated
-      active_time += (start_time ? (current_time_ms() - start_time) : 0);  
+      active_time += get_active_time(start_time);  
       start_time = 0;          
       break;
     case STATE(1,0):
       /* reed is on but distance sensor is off, stop timer */
       Serial.println("reed is on but distance sensor is off, stop timer");
-      // if start time is something other than 0 active time can be updated
-      active_time += (start_time ? (current_time_ms() - start_time) : 0);
+      active_time += get_active_time(start_time);
       start_time = 0;
       break;    
     case STATE(1,1):
