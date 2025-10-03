@@ -50,7 +50,9 @@ void loop() {
   int8_t dist_state = -2;
   uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
   uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
-
+  // for ui printing
+  uint8_t stylus_id = 0;
+  uint8_t hours = 0;
   while (1){
     reed_state = is_reed_active(&reed_time, &reed_prev_state);
     dist_state = is_dist_active();
@@ -119,9 +121,9 @@ void loop() {
     Serial.println(active_time);
     Serial.println(current_time_ms());
   
-    // update screen
-    update_screen(reed_state, 35);
-    update_screen(dist_state, 50); // they are overlapping now.
+    print_status(0);
+    print_stylus(0);
+    print_hours(0);
   }
   delay(1000);
 

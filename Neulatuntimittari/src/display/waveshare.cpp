@@ -25,6 +25,7 @@ void setup_waveshare(){
   display.setRotation(1);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
+  display.setTextSize(2,2);
 }
 
 void print_time_now() // not in use
@@ -52,24 +53,20 @@ void print_time_now() // not in use
 
 void setup_ui() {
 // Setting up static UI elements
-  const char * static_elements[] = {"Time: ", "Status: ","Uptime: ","Distance: ", "Reed Switch: "};
+  const char * static_elements[] = {"Status","Stylus #", "Wear Hours"};
   uint16_t y, x;
   y = x = 0;
-  y = FreeMonoBold9pt7b.yAdvance;
+  y = FreeMonoBold9pt7b.yAdvance + 10;
   x = 5;
   display.firstPage();
   display.setFullWindow();
   do {
     display.setCursor(x, y);
     display.print(static_elements[0]);
-    display.setCursor(x, y+20);
-    display.print(static_elements[1]);
     display.setCursor(x, y+40);
-    display.print(static_elements[2]);
-    display.setCursor(x, y+60);
-    display.print(static_elements[3]);
+    display.print(static_elements[1]);
     display.setCursor(x, y+80);
-    display.print(static_elements[4]);
+    display.print(static_elements[2]);
   }while (display.nextPage());
 }
 
@@ -104,20 +101,82 @@ void update_screen(uint16_t input,
                   uint16_t w,
                   uint16_t h){
   if(x==0){
-    x=display.width() / 3;
+    x=display.width()-w;
   }
   display.setPartialWindow(x,y,w,h);
   display.firstPage();
-/*   Serial.println("Updating *****");
-  Serial.print("status::: ");
-  Serial.println(input); */
+
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.fillRect(x, y, w, h, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+    display.setCursor(x+5,y+7+FreeMonoBold9pt7b.yAdvance);
+    display.print(input);
+
+  }while (display.nextPage());  
+}
+
+void update_screen_str(const char* input,
+                  uint16_t y,
+                  uint16_t x,
+                  uint16_t w,
+                  uint16_t h){
+
+}
+
+void print_status(uint8_t index){
+  const char* status_str[] = {"Active", "Deactive", "Sleep"};
+  int16_t x = display.width() / 2;
+  int16_t w = display.width()-x;
+  int16_t y = 10;
+  int16_t h = 30;
+  display.setPartialWindow(x,y,w,h);
+  display.firstPage();
+
   do {
     display.fillScreen(GxEPD_WHITE);
     display.fillRect(x, y, w, h, GxEPD_BLACK);
     display.setTextColor(GxEPD_WHITE);
 
-    display.setCursor(x,y+FreeMonoBold9pt7b.yAdvance);
-    display.print(input);
+    display.setCursor(x,y+7+FreeMonoBold9pt7b.yAdvance);
+    display.print(status_str[index]);
+
+  }while (display.nextPage());  
+
+}
+void print_stylus(uint8_t stylus){
+  int16_t x = display.width() * 0.75;
+  int16_t w = (display.width()-x)/2;
+  int16_t y = 50;
+  int16_t h = 30;
+  display.setPartialWindow(x,y,w,h);
+  display.firstPage();
+
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.fillRect(x, y, w, h, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+
+    display.setCursor(x,y+7+FreeMonoBold9pt7b.yAdvance);
+    display.print(stylus);
+
+  }while (display.nextPage());  
+}
+void print_hours(uint16_t hours){
+  int16_t x = display.width() * 0.75;
+  int16_t w = display.width()-x;
+  int16_t y = 110;
+  int16_t h = 30;
+  display.setPartialWindow(x,y,w,h);
+  display.firstPage();
+
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    display.fillRect(x, y, w, h, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+
+    display.setCursor(x,y+7+FreeMonoBold9pt7b.yAdvance);
+    display.print(hours);
 
   }while (display.nextPage());  
 }

@@ -19,3 +19,12 @@ void update_screen(uint16_t input,
                   uint16_t x = 0,
                   uint16_t w = 50,
                   uint16_t h = 30);
+void update_screen_str(const char* input,
+                  uint16_t y = 0,
+                  uint16_t x = 0,
+                  uint16_t w = 50,
+                  uint16_t h = 30);
+
+void print_status(uint8_t index);
+void print_stylus(uint8_t stylus);
+void print_hours(uint16_t hours);
