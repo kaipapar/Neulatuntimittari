@@ -20,6 +20,5 @@ uint8_t save_hours_csv(uint64_t array[ROWS][COLS]);
   > add difference of end and start to corresponding field 
   > send array to be saved as csv
 */
-int logging(int64_t time);
-
+uint8_t log_hours(uint64_t time, uint64_t* field);
 uint8_t print_table(uint64_t array[ROWS][COLS]);

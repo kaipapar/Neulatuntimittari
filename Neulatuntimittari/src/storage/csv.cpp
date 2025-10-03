@@ -112,9 +112,12 @@ uint8_t save_hours_csv(uint64_t array[ROWS][COLS]){
   Check correct needle id 
   > add difference of end and start to corresponding field 
   > send array to be saved as csv
+
+  time : time spent in active mode since last boot
+  field : single field of array that is to be updated
 */
-int logging(int64_t time) {
-  
+uint8_t log_hours(uint64_t time, uint64_t* field) {
+  *field += time;
   return 0;
 }
 

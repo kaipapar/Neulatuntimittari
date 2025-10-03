@@ -49,7 +49,7 @@ void loop() {
   int8_t reed_state = -2;
   int8_t dist_state = -2;
   uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
-  uint64_t id_hours[ROWS][COLS] = {0};
+  uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
 
   while (1){
     reed_state = is_reed_active(&reed_time, &reed_prev_state);
@@ -76,10 +76,16 @@ void loop() {
       /* both off, push hours to file, reset timer, going to sleep */
       Serial.println("::both off, push hours to file, reset timer, going to sleep");
       Serial.println(get_hours_csv(id_hours)); // works
-      id_hours[0][2] = (uint64_t) 69; //works
-      Serial.println(save_hours_csv(id_hours)); // saves mumbo jumbo!?
-      print_table(id_hours); // prints the mumbo jumbo!?
-      logging(active_time);
+/*       for (int i = 0; i < ROWS; i++){
+        for (int j = 0; j < COLS; j++){
+          id_hours[i][j] = 0;
+        }
+      } */
+      print_table(id_hours);
+      //id_hours[0][0] = active_time;
+      log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
+      Serial.println(save_hours_csv(id_hours));
+      print_table(id_hours); 
       // timer is reset upon boot
       go_sleep(reed_state, (gpio_num_t)REED_PIN);
       break;
@@ -94,7 +100,7 @@ void loop() {
       Serial.println("reed is on but distance sensor is off, stop timer");
       active_time += get_active_time(start_time);
       start_time = 0;
-      break;    
+      break;
     case STATE(1,1):
       /* both sensors are on, start timer */
       Serial.println("both sensors are on, start timer: timer status::::");
@@ -104,7 +110,7 @@ void loop() {
         start_time = current_time_ms();
       }
       Serial.println(start_time);
-      break;        
+      break;
     default:
       break;
     }
