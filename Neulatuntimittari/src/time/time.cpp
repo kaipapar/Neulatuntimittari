@@ -36,3 +36,9 @@ int64_t get_active_time(int64_t start){
     // if start time is something other than 0 active time can be updated
     return (start ? (current_time_ms() - start) : 0);
 }
+
+uint16_t convert_ms_h(uint64_t ms){
+  uint16_t hours = 0;
+  hours = floor((ms/1000)/3600);
+  return hours;
+}
