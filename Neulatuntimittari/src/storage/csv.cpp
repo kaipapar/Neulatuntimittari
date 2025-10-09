@@ -11,7 +11,7 @@ uint64_t csvData[ROWS][COLS];
 
 int setup_littlefs(){
     if (!LittleFS.begin()) {
-        Serial.println("LittleFS Mount Failed");
+        //Serial.println("LittleFS Mount Failed");
         return 1;
     }
     return 0;
@@ -20,12 +20,12 @@ int setup_littlefs(){
 uint8_t get_hours_csv(uint64_t array[ROWS][COLS]){
     File file = LittleFS.open("/id_hours.csv", "r", true);
     if(!file){
-        Serial.println("Failed to open file for reading");
+        //Serial.println("Failed to open file for reading");
         return 1;
     }
 
     int row = 0;
-    Serial.println("Contents:...");
+    //Serial.println("Contents:...");
     while (file.available() && row < ROWS) {
         String line = file.readStringUntil('\n');  // read one line
         line.trim();  // remove \r or spaces
@@ -56,14 +56,14 @@ uint8_t get_hours_csv(uint64_t array[ROWS][COLS]){
     file.close();
 
     // Debug print
-    Serial.println("Debug...");
+    //Serial.println("Debug...");
     for (int i = 0; i < row; i++) {
         for (int j = 0; j < COLS; j++) {
-            Serial.print(csvData[i][j]);
-            Serial.print(" ");
+            //Serial.print(csvData[i][j]);
+            //Serial.print(" ");
             array[i][j] = csvData[i][j];
         }
-    Serial.println();
+    //Serial.println();
     }
     return 0;
 } 
@@ -71,7 +71,7 @@ uint8_t get_hours_csv(uint64_t array[ROWS][COLS]){
 /* uint8_t save_hours_csv(uint64_t array[ROWS][COLS]){
     File file = LittleFS.open("/id_hours.csv", "w", true);
     if(!file){
-        Serial.println("Failed to open file for reading");
+        //Serial.println("Failed to open file for reading");
         return 1;
     }
     int row = 0;
@@ -92,7 +92,7 @@ uint8_t get_hours_csv(uint64_t array[ROWS][COLS]){
 uint8_t save_hours_csv(uint64_t array[ROWS][COLS]){
     File file = LittleFS.open("/id_hours.csv", "w");
     if(!file){
-        Serial.println("Failed to open file for writing");
+        //Serial.println("Failed to open file for writing");
         return 1;
     }
 
@@ -122,13 +122,13 @@ uint8_t log_hours(uint64_t time, uint64_t* field) {
 }
 
 uint8_t print_table(uint64_t array[ROWS][COLS]){
-    Serial.println("Printing table: ");
+    //Serial.println("Printing table: ");
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            Serial.print(array[i][j]);
-            Serial.print(" ");
+            //Serial.print(array[i][j]);
+            //Serial.print(" ");
         }
-    Serial.println();
+    //Serial.println();
     }
     return 0;   
 }

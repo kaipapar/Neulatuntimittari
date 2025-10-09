@@ -15,9 +15,9 @@ switch sleep and wakeup states via rtc gpio pin
 void sleep(int state){
 // 1. disable reed pin as gpio pin 2. activate it as wakeup pin
 // 3. go to sleep
-    Serial.println("Going to sleep");
+    //Serial.println("Going to sleep");
     digitalWrite(LED_BUILTIN, LOW);
-    delay(5000);
+    //delay(5000);
     //gpio_set_direction(RTC_REED_PIN, GPIO_MODE_DISABLE);
     //rtc_gpio_pullup_en(RTC_REED_PIN);
     if (state){
@@ -50,14 +50,14 @@ void loop() {
     digitalWrite(LED_BUILTIN, HIGH);
     while(1){
         state = digitalRead(25);
-        Serial.print("STATE:");
-        Serial.println(state);
+        //Serial.print("STATE:");
+        //Serial.println(state);
         if (state != prev_state){
             prev_state = state;
             sleep(state);
         }
     
-        delay(500);
+        //delay(500);
     }
 }
 #endif
