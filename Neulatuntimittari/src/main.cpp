@@ -51,6 +51,7 @@ void loop() {
   // for ui printing
   uint8_t stylus_id = 0;
   uint8_t hours = 0;
+  delay(4000); // give time to poll reed
   while (1){
     reed_state = is_reed_active();
     dist_state = is_dist_active();
@@ -78,7 +79,7 @@ void loop() {
       /* both off, push hours to file, reset timer, going to sleep */
       //Serial.println("::both off, push hours to file, reset timer, going to sleep");
       //Serial.println(get_hours_csv(id_hours)); // works
-      detachInterrupt(REED_PIN);
+      //detachInterrupt(REED_PIN);
       print_table(id_hours);
       //id_hours[0][0] = active_time;
       log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
@@ -88,7 +89,7 @@ void loop() {
       print_hours(id_hours[0][0]); // prints ms for easier testing
       // print_hours(convert_ms_h(id_hours[0][0]));       
       // timer is reset upon boot
-      go_sleep(reed_state, (gpio_num_t)REED_PIN);
+      go_sleep(1, (gpio_num_t)REED_PIN);
       break;
     case STATE(0,1):
       /* distance sensor on but reed is off, stop timer */

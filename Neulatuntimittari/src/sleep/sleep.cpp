@@ -4,8 +4,6 @@ Karri Korsu 2025
 https://github.com/kaipapar/Neulatuntimittari
 */
 #include "sleep/sleep.h"
-#include <Arduino.h>
-//Sleep
 #include "esp_sleep.h"
 //#include "driver/rtc_io.h"
 
