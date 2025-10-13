@@ -78,7 +78,6 @@ void loop()
     }
 
     sensorStatus = STATE(reed_state, dist_state);
-    // sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
     Serial.println(dist_state);
     Serial.println("^dist v reed");
     Serial.println(reed_state);
@@ -86,20 +85,14 @@ void loop()
     {
     case STATE(0, 0):
       /* both off, push hours to file, reset timer, going to sleep */
-      // Serial.println("::both off, push hours to file, reset timer, going to sleep");
-      // Serial.println(get_hours_csv(id_hours)); // works
-      // print_table(id_hours);
-      // id_hours[0][0] = active_time;
       Serial.println(id_hours[0][0]);
       Serial.println("^hours prelog, hours postlog v");
       log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
       save_hours_csv(id_hours);
       delay(100); // give time for saving 
-      // print_table(id_hours);
       print_status(2);
       print_hours(convert_ms_m(id_hours[0][0])); // prints ms for easier testing
       Serial.print(id_hours[0][0]);
-      // print_hours(convert_ms_h(id_hours[0][0]));
       // timer is reset upon boot
       get_hours_csv(id_hours);
       go_sleep(1, (gpio_num_t)REED_PIN);
