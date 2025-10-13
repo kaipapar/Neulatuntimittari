@@ -49,10 +49,14 @@ void loop()
   int8_t dist_state = -2;
   uint8_t sensorStatus = STATE(0, 0); // 00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
   // uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
-  uint64_t id_hours[COLS] = {0};
+  uint64_t id_hours[ROWS][COLS] = {0};
   // for ui printing
   uint8_t stylus_id = 0;
   uint8_t hours = 0;
+  get_hours_csv(id_hours);
+  Serial.println(id_hours[0][0]);
+  Serial.print("^hours on startup");
+  print_hours(convert_ms_m(id_hours[0][0])); // prints ms for easier testing
   delay(4000); // give time to poll reed on startup
   while (1)
   {
@@ -85,16 +89,19 @@ void loop()
       // Serial.println("::both off, push hours to file, reset timer, going to sleep");
       // Serial.println(get_hours_csv(id_hours)); // works
       // print_table(id_hours);
-      get_hours_csv(&id_hours);
-      Serial.println(id_hours[0]);
       // id_hours[0][0] = active_time;
-      log_hours(active_time, &id_hours[0]); // should point to the correct needle id hours
-      // Serial.println(save_hours_csv(id_hours));
+      Serial.println(id_hours[0][0]);
+      Serial.println("^hours prelog, hours postlog v");
+      log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
+      save_hours_csv(id_hours);
+      delay(100); // give time for saving 
       // print_table(id_hours);
       print_status(2);
-      print_hours(convert_ms_m(id_hours[0])); // prints ms for easier testing
+      print_hours(convert_ms_m(id_hours[0][0])); // prints ms for easier testing
+      Serial.print(id_hours[0][0]);
       // print_hours(convert_ms_h(id_hours[0][0]));
       // timer is reset upon boot
+      get_hours_csv(id_hours);
       go_sleep(1, (gpio_num_t)REED_PIN);
       break;
     case STATE(0, 1):
