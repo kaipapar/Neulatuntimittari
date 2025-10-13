@@ -6,7 +6,7 @@ https://github.com/kaipapar/Neulatuntimittari
 #pragma once
 #include <stdint.h>
 
-#define ROWS 10   // adjust for your file
+#define ROWS 1  // adjust for your file
 #define COLS 10   // adjust for max columns per row
 
 int setup_littlefs();

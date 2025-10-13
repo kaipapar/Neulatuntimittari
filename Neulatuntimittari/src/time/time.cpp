@@ -41,3 +41,9 @@ uint16_t convert_ms_h(uint64_t ms){
   hours = floor((ms/1000)/3600);
   return hours;
 }
+
+uint16_t convert_ms_m(uint64_t ms){
+  uint16_t minutes = 0;
+  minutes = floor((ms/1000)/60);
+  return minutes;
+}

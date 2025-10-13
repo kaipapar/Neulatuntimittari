@@ -117,8 +117,8 @@ uint8_t save_hours_csv(uint64_t array[ROWS][COLS]){
   field : single field of array that is to be updated
 */
 uint8_t log_hours(uint64_t time, uint64_t* field) {
-  *field += time;
-  return 0;
+    *field += time;
+    return 0;
 }
 
 uint8_t print_table(uint64_t array[ROWS][COLS]){

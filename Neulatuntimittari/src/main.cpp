@@ -1,4 +1,4 @@
-/* 
+/*
 main.cpp
 Karri Korsu 2025
 https://github.com/kaipapar/Neulatuntimittari
@@ -14,22 +14,22 @@ https://github.com/kaipapar/Neulatuntimittari
 #include <stdio.h>
 #include <Arduino.h>
 
-
 // Set LED_BUILTIN if it is not defined by Arduino framework
 #ifndef LED_BUILTIN
-    #define LED_BUILTIN 2
+#define LED_BUILTIN 2
 #endif
 
-// # of cycles from deep sleep to wake. 
+// # of cycles from deep sleep to wake.
 RTC_DATA_ATTR int boot_cnt = 0;
 
-// Macro to pack two bits into one value 
-#define STATE(s1, s2)  (((s1) << 1) | (s2))
+// Macro to pack two bits into one value
+#define STATE(s1, s2) (((s1) << 1) | (s2))
 // helpers for reading the states
-#define GET_S1(state)    (((state) >> 1) & 1)
-#define GET_S2(state)    (((state) >> 0) & 1)
+#define GET_S1(state) (((state) >> 1) & 1)
+#define GET_S2(state) (((state) >> 0) & 1)
 
-void setup(){
+void setup()
+{
   setup_waveshare();
   Serial.begin(9600);
 
@@ -37,80 +37,89 @@ void setup(){
   setup_dist();
   setup_reed();
   setup_littlefs();
-    // initialize LED digital pin as an output.
+  // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-  boot_cnt++; 
+  boot_cnt++;
 }
-void loop() { 
-  int64_t start_time = 0; // stores time since
+void loop()
+{
+  int64_t start_time = 0;  // stores time since
   int64_t active_time = 0; // amount of time spent active in ms
   int8_t reed_state = -2;
   int8_t dist_state = -2;
-  uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
-  uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
+  uint8_t sensorStatus = STATE(0, 0); // 00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
+  // uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
+  uint64_t id_hours[COLS] = {0};
   // for ui printing
   uint8_t stylus_id = 0;
   uint8_t hours = 0;
-  delay(4000); // give time to poll reed
-  while (1){
+  delay(4000); // give time to poll reed on startup
+  while (1)
+  {
     reed_state = is_reed_active();
     dist_state = is_dist_active();
-/*     dist_state = 1;
-    reed_state = 1; */
-/*     //Serial.print("Dista_state;");
-    //Serial.println(dist_state); */
+    /*     dist_state = 1;
+        reed_state = 1; */
+    /*     //Serial.print("Dista_state;");
+        //Serial.println(dist_state); */
     if ((reed_state != 0 && reed_state != 1) ||
-        (dist_state != 0 && dist_state != 1)) {
+        (dist_state != 0 && dist_state != 1))
+    {
       Serial.println("::::: ERROR, sensor states are not valid");
-      //Serial.print("Dista_state, reeda state;");
-      //Serial.println(dist_state);
-      //Serial.println(reed_state);
+      // Serial.print("Dista_state, reeda state;");
+      // Serial.println(dist_state);
+      // Serial.println(reed_state);
       reed_state = 0;
       dist_state = 0;
     }
-      
-    sensorStatus = STATE(reed_state,dist_state);
+
+    sensorStatus = STATE(reed_state, dist_state);
     // sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
     Serial.println(dist_state);
     Serial.println("^dist v reed");
     Serial.println(reed_state);
-    switch (sensorStatus){
-    case STATE(0,0):
+    switch (sensorStatus)
+    {
+    case STATE(0, 0):
       /* both off, push hours to file, reset timer, going to sleep */
-      //Serial.println("::both off, push hours to file, reset timer, going to sleep");
-      //Serial.println(get_hours_csv(id_hours)); // works
-      //detachInterrupt(REED_PIN);
-      print_table(id_hours);
-      //id_hours[0][0] = active_time;
-      log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
-      //Serial.println(save_hours_csv(id_hours));
-      print_table(id_hours); 
+      // Serial.println("::both off, push hours to file, reset timer, going to sleep");
+      // Serial.println(get_hours_csv(id_hours)); // works
+      // print_table(id_hours);
+      get_hours_csv(&id_hours);
+      Serial.println(id_hours[0]);
+      // id_hours[0][0] = active_time;
+      log_hours(active_time, &id_hours[0]); // should point to the correct needle id hours
+      // Serial.println(save_hours_csv(id_hours));
+      // print_table(id_hours);
       print_status(2);
-      print_hours(id_hours[0][0]); // prints ms for easier testing
-      // print_hours(convert_ms_h(id_hours[0][0]));       
+      print_hours(convert_ms_m(id_hours[0])); // prints ms for easier testing
+      // print_hours(convert_ms_h(id_hours[0][0]));
       // timer is reset upon boot
       go_sleep(1, (gpio_num_t)REED_PIN);
       break;
-    case STATE(0,1):
+    case STATE(0, 1):
       /* distance sensor on but reed is off, stop timer */
-      //Serial.println("::distance sensor on but reed is off, stop timer");
-      active_time += get_active_time(start_time);  
-      start_time = 0;  
-      print_status(1);
-      break;
-    case STATE(1,0):
-      /* reed is on but distance sensor is off, stop timer */
-      //Serial.println("reed is on but distance sensor is off, stop timer");
+      // Serial.println("::distance sensor on but reed is off, stop timer");
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
       break;
-    case STATE(1,1):
+    case STATE(1, 0):
+      /* reed is on but distance sensor is off, stop timer */
+      // Serial.println("reed is on but distance sensor is off, stop timer");
+      active_time += get_active_time(start_time);
+      start_time = 0;
+      print_status(1);
+      break;
+    case STATE(1, 1):
       /* both sensors are on, start timer */
-      //Serial.println("both sensors are on, start timer: timer status::::");
-      if (start_time != 0){
+      // Serial.println("both sensors are on, start timer: timer status::::");
+      if (start_time != 0)
+      {
         // donothing, timer has already started
-      } else {
+      }
+      else
+      {
         start_time = current_time_ms();
       }
       print_status(0);
@@ -119,16 +128,7 @@ void loop() {
     default:
       break;
     }
-/*     //Serial.println("Timer statii; Start, active, current");
-    //Serial.println(start_time);
-    //Serial.println(active_time);
-    //Serial.println(current_time_ms()); */
-  
-    //print_status(0);
-    //print_stylus(digitalRead(REED_PIN));
   }
-  //delay(100);
-
 };
 
 #endif

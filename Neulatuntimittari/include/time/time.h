@@ -10,3 +10,4 @@ char * current_time_str();
 int64_t current_time_ms();
 int64_t get_active_time(int64_t start);
 uint16_t convert_ms_h(uint64_t ms);
+uint16_t convert_ms_m(uint64_t ms);
