@@ -1,6 +1,12 @@
 {
-    "files.associations": {
-        "gxepd2_display_selection.h": "c",
-        "gxepd2_display_selection_new_style.h": "c"
-    }
+  "files.associations": {
+      "gxepd2_display_selection.h": "c",
+      "gxepd2_display_selection_new_style.h": "c"
+  },
+  // The number of spaces a tab is equal to. This setting is overriden based on the file contents when `editor.detectIndentation` is on.
+  "editor.tabSize": 2,
+
+  // When opening a file, `editor.tabSize` and `editor.insertSpaces` will be detected based on the file contents.
+  "editor.detectIndentation": false
 }
+
