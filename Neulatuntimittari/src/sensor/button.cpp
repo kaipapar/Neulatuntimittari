@@ -8,7 +8,7 @@ Karri Korsu 2025
 #include "time/time.h"
 
 volatile int64_t btn_timestamp = 0;
-
+#ifdef ARDUINO
 /* Interrupt function for polling push button */
 void IRAM_ATTR btn_isr() 
 {
@@ -20,6 +20,7 @@ void setup_btn()
   pinMode(BTN_PIN, INPUT_PULLUP);
   attachInterrupt(BTN_PIN, btn_isr, CHANGE); // Should it be rising or falling
 }
+#endif
 /* Cycle through styli */
 int8_t fast_click(uint64_t active_styli[COLS])
 {
@@ -39,10 +40,9 @@ int8_t slow_click(uint64_t* hours)
   return 0;
 }
 
-int8_t btn_release(uint64_t table[ROWS][COLS])
+int8_t btn_release(uint64_t table[ROWS][COLS], int8_t btn_state)
 {
-  int8_t pressed = !digitalRead(BTN_PIN);
-  if (pressed) {
+  if (btn_state) {
     return 1;
   } else {
     click_logic(table);
@@ -61,4 +61,14 @@ int8_t click_logic(uint64_t table[ROWS][COLS])
       return fast_click(table[1]);
   }// do nothing
   return 1;
+}
+
+int8_t get_active(uint64_t array[COLS]){
+  uint8_t index = 0;
+  while (index < COLS){
+    if (array[index] == 1)
+      break;
+    index += 1;
+  }
+  return index;
 }
