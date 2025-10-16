@@ -48,7 +48,6 @@ void loop()
   int8_t reed_state = -2;
   int8_t dist_state = -2;
   uint8_t sensorStatus = STATE(0, 0); // 00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
-  // uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
   uint64_t id_hours[ROWS][COLS] = {0};
   // for ui printing
   uint8_t stylus_id = 0;
@@ -62,25 +61,19 @@ void loop()
   {
     reed_state = is_reed_active();
     dist_state = is_dist_active();
-    /*     dist_state = 1;
-        reed_state = 1; */
-    /*     //DebugPrint("Dista_state;");
-        //DebugPrintln(dist_state); */
     if ((reed_state != 0 && reed_state != 1) ||
         (dist_state != 0 && dist_state != 1))
     {
       DebugPrintln("::::: ERROR, sensor states are not valid");
-      // DebugPrint("Dista_state, reeda state;");
-      // DebugPrintln(dist_state);
-      // DebugPrintln(reed_state);
+      DebugPrintPair("main.cpp.line68: dist_state: ", dist_state);
+      DebugPrintPair("main.cpp.line69: reed_state: ", reed_state);      
       reed_state = 0;
       dist_state = 0;
     }
 
     sensorStatus = STATE(reed_state, dist_state);
-    DebugPrintln(dist_state);
-    DebugPrintln("^dist v reed");
-    DebugPrintln(reed_state);
+    DebugPrintPair("main.cpp.line75: dist_state: ", dist_state);
+    DebugPrintPair("main.cpp.line76: reed_state: ", reed_state);    
     switch (sensorStatus)
     {
     case STATE(0, 0):

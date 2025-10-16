@@ -25,6 +25,7 @@ void setup_btn()
 int8_t fast_click(uint64_t active_styli[COLS])
 {
   int8_t current_i = get_active(active_styli);
+  DebugPrintPair("button.cpp: active stylus i: ", current_i);
   active_styli[current_i] = 0;
   if (current_i < COLS)
     active_styli[current_i+1] = 1;    

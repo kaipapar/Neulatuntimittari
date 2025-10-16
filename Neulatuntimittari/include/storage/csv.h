@@ -6,9 +6,10 @@ https://github.com/kaipapar/Neulatuntimittari
 #pragma once
 #include <stdint.h>
 
-#define ROWS 1  // adjust for your file
+#define ROWS 2    // adjust for your file
 #define COLS 10   // adjust for max columns per row
-
+#define STYLI 1   // index of id in table
+#define HOURS 0   // index of hours in table
 int setup_littlefs();
 // Read CSV into array
 uint8_t get_hours_csv(uint64_t array[ROWS][COLS]);
