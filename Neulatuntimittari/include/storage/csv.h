@@ -10,6 +10,12 @@ https://github.com/kaipapar/Neulatuntimittari
 #define COLS 10   // adjust for max columns per row
 #define STYLI 1   // index of id in table
 #define HOURS 0   // index of hours in table
+
+struct hours_active {
+  uint64_t hours[COLS];
+  int8_t active;
+};
+
 int setup_littlefs();
 // Read CSV into array
 uint8_t get_hours_csv(uint64_t array[ROWS][COLS]);
@@ -23,3 +29,6 @@ uint8_t save_hours_csv(uint64_t array[ROWS][COLS]);
 */
 uint8_t log_hours(uint64_t time, uint64_t* field);
 uint8_t print_table(uint64_t array[ROWS][COLS]);
+
+uint8_t get_struct_csv(hours_active* id_hours);
+uint8_t save_struct_csv(hours_active* id_hours);

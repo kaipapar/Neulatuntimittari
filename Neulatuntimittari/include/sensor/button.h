@@ -19,8 +19,8 @@ void IRAM_ATTR btn_isr();
 void setup_btn();
 #endif
 
-int8_t fast_click(uint64_t active_styli[COLS]); // Cycle through styli
+int8_t fast_click(int8_t* current_i); // Cycle through styli
 int8_t slow_click(uint64_t* hours); // Set current stylus hours to 0
-int8_t btn_release(uint64_t array[ROWS][COLS]);
-int8_t click_logic(uint64_t array[ROWS][COLS]);
+int8_t btn_release(hours_active* id_hours, int8_t btn_state);
+int8_t click_logic(hours_active* id_hours);
 int8_t get_active(uint64_t array[COLS]);

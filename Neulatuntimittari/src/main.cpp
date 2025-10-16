@@ -7,6 +7,7 @@ https://github.com/kaipapar/Neulatuntimittari
 #include "display/waveshare.h"
 #include "sensor/dist.h"
 #include "sensor/reed.h"
+#include "sensor/button.h"
 #include "storage/csv.h"
 #include "time/time.h"
 #include "sleep/sleep.h"
@@ -28,6 +29,8 @@ RTC_DATA_ATTR int boot_cnt = 0;
 #define GET_S1(state) (((state) >> 1) & 1)
 #define GET_S2(state) (((state) >> 0) & 1)
 
+
+
 void setup()
 {
   setup_waveshare();
@@ -48,14 +51,13 @@ void loop()
   int8_t reed_state = -2;
   int8_t dist_state = -2;
   uint8_t sensorStatus = STATE(0, 0); // 00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
-  uint64_t id_hours[ROWS][COLS] = {0};
-  // for ui printing
-  uint8_t stylus_id = 0;
-  uint8_t hours = 0;
-  get_hours_csv(id_hours);
-  DebugPrintln(id_hours[0][0]);
+  hours_active id_hours;
+  
+  get_struct_csv(&id_hours);
+  DebugPrintln(id_hours.hours[id_hours.active]);
   DebugPrint("^hours on startup");
-  print_hours(convert_ms_m(id_hours[0][0])); // prints ms for easier testing
+  print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints ms for easier testing
+  print_stylus(id_hours.active);
   delay(4000); // give time to poll reed on startup
   while (1)
   {
@@ -72,22 +74,25 @@ void loop()
     }
 
     sensorStatus = STATE(reed_state, dist_state);
-    DebugPrintPair("main.cpp.line75: dist_state: ", dist_state);
-    DebugPrintPair("main.cpp.line76: reed_state: ", reed_state);    
+    DebugPrintPair("main.cpp.line75: dist_state, reed_state: ", sensorStatus);
+    for (int i = 0; i < COLS; i++){
+      DebugPrint(id_hours.hours[i]);
+    }
+    DebugPrintln(" <- id hours.hours");
     switch (sensorStatus)
     {
     case STATE(0, 0):
       /* both off, push hours to file, reset timer, going to sleep */
-      DebugPrintln(id_hours[0][0]);
-      DebugPrintln("^hours prelog, hours postlog v");
-      log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
-      save_hours_csv(id_hours);
+      DebugPrintPair("main.cpp.line83: active stylus: ",id_hours.active);
+      DebugPrintPair("main.cpp.line84: hours prelog: ", id_hours.hours[id_hours.active]);
+      log_hours(active_time, &id_hours.hours[id_hours.active]); // should point to the correct needle id hours
+      save_struct_csv(&id_hours);
       delay(100); // give time for saving 
       print_status(2);
-      print_hours(convert_ms_m(id_hours[0][0])); // prints ms for easier testing
-      DebugPrint(id_hours[0][0]);
+      print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints ms for easier testing
+      DebugPrintPair("main.cpp.line89: hours postlog: ", id_hours.hours[id_hours.active]);
       // timer is reset upon boot
-      get_hours_csv(id_hours);
+      //get_struct_csv(&id_hours);
       go_sleep(1, (gpio_num_t)REED_PIN);
       break;
     case STATE(0, 1):
@@ -96,6 +101,11 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
+      if (btn_release(&id_hours, !digitalRead(BTN_PIN)) == 0){
+        // update waveshare prints
+        print_hours(id_hours.hours[id_hours.active]);        
+        print_stylus(id_hours.active);
+      };
       break;
     case STATE(1, 0):
       /* reed is on but distance sensor is off, stop timer */
@@ -103,18 +113,18 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
+      if (btn_release(&id_hours, !digitalRead(BTN_PIN)) == 0){
+        // update waveshare prints
+        print_hours(id_hours.hours[id_hours.active]);
+        print_stylus(id_hours.active);
+      }      
       break;
     case STATE(1, 1):
       /* both sensors are on, start timer */
       // DebugPrintln("both sensors are on, start timer: timer status::::");
-      if (start_time != 0)
-      {
-        // donothing, timer has already started
-      }
-      else
-      {
-        start_time = current_time_ms();
-      }
+      if (start_time == 0)
+        start_time = current_time_ms();        
+      //start_time = !start_time ? current_time_ms() : 0;
       print_status(0);
       ////DebugPrintln(start_time);
       break;

@@ -22,15 +22,18 @@ void setup_btn()
 }
 #endif
 /* Cycle through styli */
-int8_t fast_click(uint64_t active_styli[COLS])
+int8_t fast_click(int8_t* current_i)
 {
-  int8_t current_i = get_active(active_styli);
-  DebugPrintPair("button.cpp: active stylus i: ", current_i);
-  active_styli[current_i] = 0;
-  if (current_i < COLS)
-    active_styli[current_i+1] = 1;    
-  else 
-    active_styli[0] = 1;
+  DebugPrintPair("button.cpp: active stylus i: ", *current_i);
+  if (*current_i < COLS)
+    *current_i++;    
+  else if (*current_i == COLS)
+    *current_i = 0;
+  else{ // its something weird
+    DebugPrintPair("ERROR: button.cpp: active stylus i: ", *current_i);
+    *current_i = 0;
+    return 1;
+  } 
   return 0;
 }
 
@@ -41,25 +44,24 @@ int8_t slow_click(uint64_t* hours)
   return 0;
 }
 
-int8_t btn_release(uint64_t table[ROWS][COLS], int8_t btn_state)
+int8_t btn_release(hours_active* id_hours, int8_t btn_state)
 {
-  if (btn_state) {
+  if (btn_state == 1 || btn_timestamp == 0)
     return 1;
-  } else {
-    click_logic(table);
-    btn_timestamp = 0;
-  }
+
+  click_logic(id_hours);
+  btn_timestamp = 0;
   return 0;
 }
 
-int8_t click_logic(uint64_t table[ROWS][COLS])
+int8_t click_logic(hours_active* id_hours)
 {
   int64_t diff = btn_timestamp ? (current_time_ms() - btn_timestamp) : 0;
   if (diff >= DEBOUNCE && diff < SUPER_SLOW){
     if (diff >= SLOW_THRHLD)
-      return slow_click(&table[0][get_active(table[1])]);
+      return slow_click(&id_hours->hours[id_hours->active]);
     else
-      return fast_click(table[1]);
+      return fast_click(&id_hours->active);
   }// do nothing
   return 1;
 }
