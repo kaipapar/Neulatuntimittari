@@ -5,5 +5,5 @@ https://github.com/kaipapar/Neulatuntimittari
 */
 #pragma once
 #include <stdint.h>
-#include <Arduino.h>
+#include <debug_serial.h>
 void go_sleep(uint8_t state, gpio_num_t wakeup_pin);

@@ -4,14 +4,14 @@ Karri Korsu 2025
 https://github.com/kaipapar/Neulatuntimittari
 */
 #include "storage/csv.h"
-#include <Arduino.h>
+#include <debug_serial.h>
 //Filesystem
 #include "LittleFS.h"
 uint64_t csvData[ROWS][COLS];
 
 int setup_littlefs(){
     if (!LittleFS.begin()) {
-        Serial.println("LittleFS Mount Failed");
+        DebugPrintln("LittleFS Mount Failed");
         return 1;
     }
     return 0;
@@ -20,7 +20,7 @@ int setup_littlefs(){
 uint8_t get_hours_csv(uint64_t array[ROWS][COLS]) {
     File file = LittleFS.open("/id_hours.csv", "r");
     if (!file) {
-        Serial.println("Failed to open file for reading");
+        DebugPrintln("Failed to open file for reading");
         return 1;
     }
 
@@ -55,13 +55,13 @@ uint8_t get_hours_csv(uint64_t array[ROWS][COLS]) {
     }
     file.close();
     // Debug print
-    Serial.println("Debug...");
+    DebugPrintln("Debug...");
     for (int i = 0; i < row; i++) {
         for (int j = 0; j < COLS; j++) {
-            Serial.print(array[i][j]);
-            Serial.print(" ");
+            DebugPrint(array[i][j]);
+            DebugPrint(" ");
         }
-        Serial.println();
+        DebugPrintln();
     }
     return 0;
 }
@@ -69,7 +69,7 @@ uint8_t get_hours_csv(uint64_t array[ROWS][COLS]) {
 uint8_t save_hours_csv(uint64_t array[ROWS][COLS]){
     File file = LittleFS.open("/id_hours.csv", "w");
     if(!file){
-        Serial.println("Failed to open file for writing");
+        DebugPrintln("Failed to open file for writing");
         return 1;
     }
 
@@ -99,13 +99,13 @@ uint8_t log_hours(uint64_t time, uint64_t* field) {
 }
 
 uint8_t print_table(uint64_t array[ROWS][COLS]){
-    //Serial.println("Printing table: ");
+    //DebugPrintln("Printing table: ");
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            //Serial.print(array[i][j]);
-            //Serial.print(" ");
+            //DebugPrint(array[i][j]);
+            //DebugPrint(" ");
         }
-    //Serial.println();
+    //DebugPrintln();
     }
     return 0;   
 }

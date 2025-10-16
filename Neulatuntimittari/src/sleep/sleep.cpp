@@ -11,13 +11,13 @@ void go_sleep(uint8_t state, gpio_num_t wakeup_pin)
 {
     // 1. disable reed pin as gpio pin 2. activate it as wakeup pin
     // 3. go to sleep
-    // Serial.println("Going to sleep");
+    // DebugPrintln("Going to sleep");
     digitalWrite(LED_BUILTIN, HIGH);
     // delay(5000);
     // gpio_set_direction((gpio_num_t)REED_PIN, GPIO_MODE_DISABLE);
     // rtc_gpio_pullup_en((gpio_num_t)REED_PIN);
-    // Serial.print("State from gosleep: ");
-    // Serial.println(state);
+    // DebugPrint("State from gosleep: ");
+    // DebugPrintln(state);
     if (state)
     {
         esp_sleep_enable_ext0_wakeup(wakeup_pin, LOW);

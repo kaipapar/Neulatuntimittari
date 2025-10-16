@@ -5,7 +5,7 @@ https://github.com/kaipapar/Neulatuntimittari
 */
 #pragma once
 #include <stdint.h>
-#include <Arduino.h>
+#include <debug_serial.h>
 #define REED_PIN 25
 // max time difference between reed switch activations (ms)
 #define MAX_INTERVAL 5000

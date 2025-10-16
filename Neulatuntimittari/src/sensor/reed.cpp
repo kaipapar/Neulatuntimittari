@@ -18,8 +18,8 @@ void IRAM_ATTR reed_isr()
 {
   // update timestamp
   reed_timestamp = current_time_ms();
-  /*   Serial.println("interrupt");
-    Serial.print(reed_timestamp); */
+  /*   DebugPrintln("interrupt");
+    DebugPrint(reed_timestamp); */
 }
 
 void setup_reed()
@@ -37,8 +37,8 @@ void setup_reed()
 int8_t is_reed_active()
 {
   int64_t diff = reed_timestamp ? (current_time_ms() - reed_timestamp) : 0;
-  Serial.print("diff=");
-  Serial.println(diff);
+  DebugPrint("diff=");
+  DebugPrintln(diff);
   if (diff >= 0 && diff < MAX_INTERVAL)
     return diff ? 1 : 0;
   else if (diff < 0)

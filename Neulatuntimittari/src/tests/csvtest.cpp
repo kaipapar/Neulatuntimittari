@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <debug_serial.h>
 #include <LittleFS.h>
 /* Works! */
 #if 0
@@ -11,17 +11,17 @@ void setup() {
   Serial.begin(9600);
 
   if (!LittleFS.begin()) {
-    //Serial.println("LittleFS Mount Failed");
+    //DebugPrintln("LittleFS Mount Failed");
     return;
   }
   File file = LittleFS.open("/id_hours.csv", "r", true);
   if (!file) {
-    //Serial.println("Failed to open file");
+    //DebugPrintln("Failed to open file");
     return;
   }
 
   int row = 0;
-  //Serial.println("Contents:...");
+  //DebugPrintln("Contents:...");
   while (file.available() && row < ROWS) {
     String line = file.readStringUntil('\n');  // read one line
     line.trim();  // remove \r or spaces
@@ -53,13 +53,13 @@ void setup() {
   file.close();
 
   // Debug print
-  //Serial.println("Debug...");
+  //DebugPrintln("Debug...");
   for (int i = 0; i < row; i++) {
     for (int j = 0; j < COLS; j++) {
-      //Serial.print(csvData[i][j]);
-      //Serial.print(" ");
+      //DebugPrint(csvData[i][j]);
+      //DebugPrint(" ");
     }
-    //Serial.println();
+    //DebugPrintln();
   }
 }
 

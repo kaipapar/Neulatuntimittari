@@ -79,9 +79,9 @@ void update_dist() // not in use
   uint16_t h = 30;  
   display.setPartialWindow(x,y,w,h);
   display.firstPage();
-  //Serial.println("Updating dist *****");
-  //Serial.print("Dist status::: ");
-  // //Serial.println(dist_status);
+  //DebugPrintln("Updating dist *****");
+  //DebugPrint("Dist status::: ");
+  // //DebugPrintln(dist_status);
   do {
     display.fillScreen(GxEPD_WHITE);
     display.fillRect(x, y, w, h, GxEPD_BLACK);
