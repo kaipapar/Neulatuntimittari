@@ -39,6 +39,7 @@ void setup()
   setup_ui();
   setup_dist();
   setup_reed();
+  //setup_btn();
   setup_littlefs();
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -75,10 +76,12 @@ void loop()
 
     sensorStatus = STATE(reed_state, dist_state);
     DebugPrintPair("main.cpp.line75: dist_state, reed_state: ", sensorStatus);
-    for (int i = 0; i < COLS; i++){
-      DebugPrint(id_hours.hours[i]);
+    //print_array(id_hours.hours); //maybe doesn't have time to exec next lines
+    DebugPrintPair("main.cpp:80:stylus:",id_hours.active);
+    if (id_hours.active < 0 || id_hours.active > 10){
+      DebugPrintPair("main.cpp:81:invalid stylus:",id_hours.active);
+      id_hours.active = 0;
     }
-    DebugPrintln(" <- id hours.hours");
     switch (sensorStatus)
     {
     case STATE(0, 0):
@@ -101,11 +104,12 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
-      if (btn_release(&id_hours, !digitalRead(BTN_PIN)) == 0){
+/*       if (btn_release(&id_hours) == 0){
         // update waveshare prints
         print_hours(id_hours.hours[id_hours.active]);        
         print_stylus(id_hours.active);
-      };
+      }; */
+
       break;
     case STATE(1, 0):
       /* reed is on but distance sensor is off, stop timer */
@@ -113,11 +117,11 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
-      if (btn_release(&id_hours, !digitalRead(BTN_PIN)) == 0){
+/*       if (btn_release(&id_hours) == 0){
         // update waveshare prints
         print_hours(id_hours.hours[id_hours.active]);
         print_stylus(id_hours.active);
-      }      
+      }   */    
       break;
     case STATE(1, 1):
       /* both sensors are on, start timer */
@@ -126,6 +130,7 @@ void loop()
         start_time = current_time_ms();        
       //start_time = !start_time ? current_time_ms() : 0;
       print_status(0);
+      //zero_btn_timestamp();
       ////DebugPrintln(start_time);
       break;
     default:
