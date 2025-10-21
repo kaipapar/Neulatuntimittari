@@ -8,16 +8,16 @@ switch sleep and wakeup states via rtc gpio pin
 #define RTC_REED_PIN GPIO_NUM_25
 
 #include <stdio.h>
-#include <Arduino.h>
+#include <debug_serial.h>
 #include "driver/rtc_io.h"
 #include "driver/gpio.h"
 #include "esp_sleep.h"
 void sleep(int state){
 // 1. disable reed pin as gpio pin 2. activate it as wakeup pin
 // 3. go to sleep
-    Serial.println("Going to sleep");
+    //DebugPrintln("Going to sleep");
     digitalWrite(LED_BUILTIN, LOW);
-    delay(5000);
+    //delay(5000);
     //gpio_set_direction(RTC_REED_PIN, GPIO_MODE_DISABLE);
     //rtc_gpio_pullup_en(RTC_REED_PIN);
     if (state){
@@ -50,14 +50,14 @@ void loop() {
     digitalWrite(LED_BUILTIN, HIGH);
     while(1){
         state = digitalRead(25);
-        Serial.print("STATE:");
-        Serial.println(state);
+        //DebugPrint("STATE:");
+        //DebugPrintln(state);
         if (state != prev_state){
             prev_state = state;
             sleep(state);
         }
     
-        delay(500);
+        //delay(500);
     }
 }
 #endif

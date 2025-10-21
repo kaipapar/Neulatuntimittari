@@ -1,4 +1,4 @@
-/* 
+/*
 main.cpp
 Karri Korsu 2025
 https://github.com/kaipapar/Neulatuntimittari
@@ -7,126 +7,137 @@ https://github.com/kaipapar/Neulatuntimittari
 #include "display/waveshare.h"
 #include "sensor/dist.h"
 #include "sensor/reed.h"
+#include "sensor/button.h"
 #include "storage/csv.h"
 #include "time/time.h"
 #include "sleep/sleep.h"
 
 #include <stdio.h>
-#include <Arduino.h>
-
+#include <debug_serial.h>
 
 // Set LED_BUILTIN if it is not defined by Arduino framework
 #ifndef LED_BUILTIN
-    #define LED_BUILTIN 2
+#define LED_BUILTIN 2
 #endif
 
-// # of cycles from deep sleep to wake. 
+// \# of cycles from deep sleep to wake.
 RTC_DATA_ATTR int boot_cnt = 0;
 
-// Macro to pack two bits into one value 
-#define STATE(s1, s2)  (((s1) << 1) | (s2))
+// Macro to pack two bits into one value
+#define STATE(s1, s2) (((s1) << 1) | (s2))
 // helpers for reading the states
-#define GET_S1(state)    (((state) >> 1) & 1)
-#define GET_S2(state)    (((state) >> 0) & 1)
+#define GET_S1(state) (((state) >> 1) & 1)
+#define GET_S2(state) (((state) >> 0) & 1)
 
-void setup(){
+
+
+void setup()
+{
   setup_waveshare();
   Serial.begin(9600);
 
   setup_ui();
   setup_dist();
   setup_reed();
+  setup_btn();
   setup_littlefs();
-    // initialize LED digital pin as an output.
+  // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-  boot_cnt++; 
+  boot_cnt++;
 }
-void loop() { 
-  int64_t reed_time = 0; // time last seen for reed switch
-  uint8_t reed_prev_state = 0; // previous reed state
-  int64_t start_time = 0; // stores time since
+void loop()
+{
+  int64_t start_time = 0;  // stores time since
   int64_t active_time = 0; // amount of time spent active in ms
   int8_t reed_state = -2;
   int8_t dist_state = -2;
-  uint8_t sensorStatus = STATE(0,0); //00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
-  uint64_t id_hours[ROWS][COLS] = {0}; // might be condensed in the future to only be 1D, we'll see.
-  // for ui printing
-  uint8_t stylus_id = 0;
-  uint8_t hours = 0;
-  while (1){
-    reed_state = is_reed_active(&reed_time, &reed_prev_state);
+  uint8_t sensorStatus = STATE(0, 0); // 00:both off, 10: reed on dist off, 01: opposite of before, 11: both on. Does the EOL char mess this up?
+  hours_active id_hours;
+  
+  get_struct_csv(&id_hours);
+  DebugPrintln(id_hours.hours[id_hours.active]);
+  DebugPrint("^hours on startup");
+  print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints ms for easier testing
+  print_stylus(id_hours.active);
+  delay(4000); // give time to poll reed on startup
+  while (1)
+  {
+    reed_state = is_reed_active();
     dist_state = is_dist_active();
-/*     dist_state = 1;
-    reed_state = 1; */
-    Serial.print("Dista_state;");
-    Serial.println(dist_state);
     if ((reed_state != 0 && reed_state != 1) ||
-        (dist_state != 0 && dist_state != 1)) {
-      Serial.println("::::: ERROR, sensor states are not valid");
-      Serial.print("Dista_state, reeda state;");
-      Serial.println(dist_state);
-      Serial.println(reed_state);
+        (dist_state != 0 && dist_state != 1))
+    {
+      DebugPrintln("::::: ERROR, sensor states are not valid");
+      DebugPrintPair("main.cpp.line68: dist_state: ", dist_state);
+      DebugPrintPair("main.cpp.line69: reed_state: ", reed_state);      
       reed_state = 0;
       dist_state = 0;
     }
-      
-    // sensorStatus = STATE(reed_state,dist_state);
-    sensorStatus = STATE(digitalRead(REED_PIN),dist_state);
 
-    switch (sensorStatus){
-    case STATE(0,0):
+    sensorStatus = STATE(reed_state, dist_state);
+    DebugPrintPair("main.cpp.line75: dist_state, reed_state: ", sensorStatus);
+    //print_array(id_hours.hours); //maybe doesn't have time to exec next lines
+    DebugPrintPair("main.cpp:80:stylus:",id_hours.active);
+    if (id_hours.active < 0 || id_hours.active > 10){
+      DebugPrintPair("main.cpp:81:invalid stylus:",id_hours.active);
+      id_hours.active = 0;
+    }
+    DebugPrintPair("main.cpp.86: button state: ", digitalRead(BTN_PIN));
+    switch (sensorStatus)
+    {
+    case STATE(0, 0):
       /* both off, push hours to file, reset timer, going to sleep */
-      Serial.println("::both off, push hours to file, reset timer, going to sleep");
-      Serial.println(get_hours_csv(id_hours)); // works
-/*       for (int i = 0; i < ROWS; i++){
-        for (int j = 0; j < COLS; j++){
-          id_hours[i][j] = 0;
-        }
-      } */
-      print_table(id_hours);
-      //id_hours[0][0] = active_time;
-      log_hours(active_time, &id_hours[0][0]); // should point to the correct needle id hours
-      Serial.println(save_hours_csv(id_hours));
-      print_table(id_hours); 
+      DebugPrintPair("main.cpp.line83: active stylus: ",id_hours.active);
+      DebugPrintPair("main.cpp.line84: hours prelog: ", id_hours.hours[id_hours.active]);
+      log_hours(active_time, &id_hours.hours[id_hours.active]); // should point to the correct needle id hours
+      save_struct_csv(&id_hours);
+      delay(100); // give time for saving 
+      print_status(2);
+      //print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints minutes for easier testing
+      print_hours(convert_ms_h(id_hours.hours[id_hours.active])); // prints hours
+      DebugPrintPair("main.cpp.line89: hours postlog: ", id_hours.hours[id_hours.active]);
       // timer is reset upon boot
-      go_sleep(reed_state, (gpio_num_t)REED_PIN);
+      //get_struct_csv(&id_hours);
+      go_sleep(1, (gpio_num_t)REED_PIN);
       break;
-    case STATE(0,1):
+    case STATE(0, 1):
       /* distance sensor on but reed is off, stop timer */
-      Serial.println("::distance sensor on but reed is off, stop timer");
-      active_time += get_active_time(start_time);  
-      start_time = 0;          
-      break;
-    case STATE(1,0):
-      /* reed is on but distance sensor is off, stop timer */
-      Serial.println("reed is on but distance sensor is off, stop timer");
       active_time += get_active_time(start_time);
       start_time = 0;
+      print_status(1);
+      if (btn_release(&id_hours) == 0){
+        // update waveshare prints
+        print_hours(id_hours.hours[id_hours.active]);        
+        print_stylus(id_hours.active);
+      };
+
       break;
-    case STATE(1,1):
+    case STATE(1, 0):
+      /* reed is on but distance sensor is off, stop timer */
+      // DebugPrintln("reed is on but distance sensor is off, stop timer");
+      active_time += get_active_time(start_time);
+      start_time = 0;
+      print_status(1);
+      if (btn_release(&id_hours) == 0){
+        // update waveshare prints
+        print_hours(id_hours.hours[id_hours.active]);
+        print_stylus(id_hours.active);
+      }      
+      break;
+    case STATE(1, 1):
       /* both sensors are on, start timer */
-      Serial.println("both sensors are on, start timer: timer status::::");
-      if (start_time != 0){
-        // donothing, timer has already started
-      } else {
-        start_time = current_time_ms();
-      }
-      Serial.println(start_time);
+      // DebugPrintln("both sensors are on, start timer: timer status::::");
+      if (start_time == 0)
+        start_time = current_time_ms();        
+      //start_time = !start_time ? current_time_ms() : 0;
+      print_status(0);
+      zero_btn_timestamp();
+      ////DebugPrintln(start_time);
       break;
     default:
       break;
     }
-    Serial.println("Timer statii; Start, active, current");
-    Serial.println(start_time);
-    Serial.println(active_time);
-    Serial.println(current_time_ms());
-  
-    print_status(0);
-    print_stylus(0);
-    print_hours(0);
   }
-  delay(1000);
-
 };
 
 #endif

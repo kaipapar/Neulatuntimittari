@@ -5,9 +5,11 @@ https://github.com/kaipapar/Neulatuntimittari
 */
 #pragma once
 #include <stdint.h>
+#include <debug_serial.h>
 #define REED_PIN 25
-// max time difference between reed switch activations
+// max time difference between reed switch activations (ms)
 #define MAX_INTERVAL 5000
 
+void IRAM_ATTR reed_isr();
 void setup_reed();
-int8_t is_reed_active(int64_t* prev_time, uint8_t* prev_state);
+int8_t is_reed_active();

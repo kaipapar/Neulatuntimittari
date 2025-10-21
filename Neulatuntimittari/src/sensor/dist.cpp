@@ -4,17 +4,17 @@ Karri Korsu 2025
 */
 #include "sensor/dist.h"
 #include <stdint.h>
-#include <Arduino.h>
+#include <debug_serial.h>
 
 void setup_dist(){
     pinMode(DIST_CS_PIN, INPUT); // Enable output
     digitalWrite(DIST_CS_PIN, HIGH);
-    Serial.println("IR Setup **********\n");
+    //DebugPrintln("IR Setup **********\n");
 }
 
 int8_t is_dist_active(){
   uint16_t dist_status = analogRead(DIST_OUT_PIN);
-  Serial.println("::: HEllo from dist function::");
-  Serial.print(dist_status);
+  //DebugPrintln("::: HEllo from dist function::");
+  //DebugPrint(dist_status);
   return (dist_status > 100) ? 1 : 0;
 }
