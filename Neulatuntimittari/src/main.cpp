@@ -39,7 +39,7 @@ void setup()
   setup_ui();
   setup_dist();
   setup_reed();
-  //setup_btn();
+  setup_btn();
   setup_littlefs();
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -82,6 +82,7 @@ void loop()
       DebugPrintPair("main.cpp:81:invalid stylus:",id_hours.active);
       id_hours.active = 0;
     }
+    DebugPrintPair("main.cpp.86: button state: ", digitalRead(BTN_PIN));
     switch (sensorStatus)
     {
     case STATE(0, 0):
@@ -104,11 +105,11 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
-/*       if (btn_release(&id_hours) == 0){
+      if (btn_release(&id_hours) == 0){
         // update waveshare prints
         print_hours(id_hours.hours[id_hours.active]);        
         print_stylus(id_hours.active);
-      }; */
+      };
 
       break;
     case STATE(1, 0):
@@ -117,11 +118,11 @@ void loop()
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
-/*       if (btn_release(&id_hours) == 0){
+      if (btn_release(&id_hours) == 0){
         // update waveshare prints
         print_hours(id_hours.hours[id_hours.active]);
         print_stylus(id_hours.active);
-      }   */    
+      }      
       break;
     case STATE(1, 1):
       /* both sensors are on, start timer */
@@ -130,7 +131,7 @@ void loop()
         start_time = current_time_ms();        
       //start_time = !start_time ? current_time_ms() : 0;
       print_status(0);
-      //zero_btn_timestamp();
+      zero_btn_timestamp();
       ////DebugPrintln(start_time);
       break;
     default:
