@@ -93,7 +93,8 @@ void loop()
       save_struct_csv(&id_hours);
       delay(100); // give time for saving 
       print_status(2);
-      print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints ms for easier testing
+      //print_hours(convert_ms_m(id_hours.hours[id_hours.active])); // prints minutes for easier testing
+      print_hours(convert_ms_h(id_hours.hours[id_hours.active])); // prints hours
       DebugPrintPair("main.cpp.line89: hours postlog: ", id_hours.hours[id_hours.active]);
       // timer is reset upon boot
       //get_struct_csv(&id_hours);
@@ -101,7 +102,6 @@ void loop()
       break;
     case STATE(0, 1):
       /* distance sensor on but reed is off, stop timer */
-      // DebugPrintln("::distance sensor on but reed is off, stop timer");
       active_time += get_active_time(start_time);
       start_time = 0;
       print_status(1);
