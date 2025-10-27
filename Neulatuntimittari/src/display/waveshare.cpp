@@ -22,7 +22,7 @@ https://github.com/kaipapar/Neulatuntimittari
 void setup_waveshare(){
     //display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
   display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
-  display.setRotation(1);
+  display.setRotation(3);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
   display.setTextSize(2,2);
