@@ -1,0 +1,28 @@
+{
+	"nodes":[
+		{"id":"bbbd0ae71a5c972d","x":-410,"y":-309,"width":195,"height":79,"type":"text","text":"Reed switch status changes"},
+		{"id":"d00959d35af4fff9","x":-459,"y":142,"width":213,"height":80,"type":"text","text":"Both sensor state is down"},
+		{"id":"66cc7c011750b834","x":-627,"y":-195,"width":119,"height":74,"type":"text","text":"Sleep"},
+		{"id":"703b8d13a9669201","x":-646,"y":-76,"width":157,"height":60,"type":"text","text":"Reset timer"},
+		{"id":"e2d1325ed37359fa","x":-153,"y":152,"width":222,"height":60,"type":"text","text":"Stop timer"},
+		{"id":"576876c3d96b5f09","x":-140,"y":-303,"width":141,"height":67,"type":"text","text":"Interrupt"},
+		{"id":"2286e7ebab9e007b","x":46,"y":18,"width":225,"height":85,"type":"text","text":"Either sensor state is down"},
+		{"id":"d46f243ef94846e4","x":69,"y":-200,"width":178,"height":73,"type":"text","text":"Both sensors' state is up"},
+		{"id":"754bc79027d11ab1","x":-661,"y":18,"width":187,"height":94,"type":"text","text":"Push updated hours to file"},
+		{"id":"db7637641b26dbf0","x":82,"y":-76,"width":153,"height":50,"type":"text","text":"Start timer"}
+	],
+	"edges":[
+		{"id":"3b5ae80e095a1817","fromNode":"bbbd0ae71a5c972d","fromSide":"right","toNode":"576876c3d96b5f09","toSide":"left"},
+		{"id":"9a2e81592db0e26a","fromNode":"576876c3d96b5f09","fromSide":"right","toNode":"d46f243ef94846e4","toSide":"top"},
+		{"id":"269020156025ef35","fromNode":"db7637641b26dbf0","fromSide":"bottom","toNode":"2286e7ebab9e007b","toSide":"top"},
+		{"id":"1d973e02c3fb3727","fromNode":"e2d1325ed37359fa","fromSide":"left","toNode":"d00959d35af4fff9","toSide":"right"},
+		{"id":"b91695656e20d785","fromNode":"e2d1325ed37359fa","fromSide":"top","toNode":"bbbd0ae71a5c972d","toSide":"bottom"},
+		{"id":"d1936446efe6b5ed","fromNode":"d00959d35af4fff9","fromSide":"left","toNode":"754bc79027d11ab1","toSide":"bottom"},
+		{"id":"a24af9b83a7ee7dc","fromNode":"754bc79027d11ab1","fromSide":"top","toNode":"703b8d13a9669201","toSide":"bottom"},
+		{"id":"5c08455a11bde156","fromNode":"703b8d13a9669201","fromSide":"top","toNode":"66cc7c011750b834","toSide":"bottom"},
+		{"id":"9b8535ecd6072fc8","fromNode":"66cc7c011750b834","fromSide":"top","toNode":"bbbd0ae71a5c972d","toSide":"left"},
+		{"id":"d181d1bfd885477b","fromNode":"d46f243ef94846e4","fromSide":"bottom","toNode":"db7637641b26dbf0","toSide":"top"},
+		{"id":"c5a57418aec039ed","fromNode":"2286e7ebab9e007b","fromSide":"bottom","toNode":"e2d1325ed37359fa","toSide":"right"},
+		{"id":"766dbe0b9bc4a444","fromNode":"576876c3d96b5f09","fromSide":"bottom","toNode":"d00959d35af4fff9","toSide":"top"}
+	]
+}
